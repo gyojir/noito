@@ -1,0 +1,25 @@
+import { System } from '../libs/ecs/ecs';
+import { GameContext } from '../scenes/MainScene';
+import { PositionComponent } from '../components/PositionComponent';
+import { MoveComponent } from '../components/MoveComponent';
+
+export class MoveSystem extends System<GameContext> {
+  constructor(){
+    super([PositionComponent, MoveComponent]);
+  }
+
+  update(dt: number, context: GameContext) {
+    this.forEach(e=>{
+      const pos = e.getComponent(PositionComponent);
+      const move = e.getComponent(MoveComponent);
+      if(pos === undefined ||
+        move === undefined){
+        return;
+      }
+
+      const mv = move.totalMove();
+      pos.x += mv.x;
+      pos.y += mv.y;
+    })
+  }
+}
