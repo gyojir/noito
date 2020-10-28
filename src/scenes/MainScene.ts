@@ -1,7 +1,9 @@
 import * as PIXI from 'pixi.js'
 import * as PIXIFilters from 'pixi-filters';
+// @ts-ignore
+import * as pixi_fairygui from 'pixi_fairygui';
 import * as ImGui from 'imgui-js/imgui.js';
-import * as ecs from '../libs/ecs/ecs'
+import * as ecs from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
 import { PositionComponent } from '../components/PositionComponent';
 import { SpriteComponent } from '../components/SpriteComponent';
@@ -73,9 +75,9 @@ export interface GameContext {
 
 
 /**
- * MainRoot
+ * MainScene
  */
-class MainRoot extends SceneStateMachine<typeof MainRoot.State>{
+class MainScene extends SceneStateMachine<typeof MainScene.State>{
   static State = {
     Load: "Load",
     Main: "Main"
@@ -172,12 +174,14 @@ class MainRoot extends SceneStateMachine<typeof MainRoot.State>{
 
   constructor(app: PIXI.Application) {
     super({app});
+    this.view.container.interactive = true;
+    this.view.container.on("pointerdown", ()=>console.log("aho"))
 
     // ブラーフィルター作成
     let blur = new PIXI.filters.BlurFilter();
     let glitch = new PIXIFilters.GlitchFilter();
     let bloom = new PIXIFilters.AdvancedBloomFilter({
-      threshold: 0.8,
+      threshold: 0.3,
       bloomScale: 1.5,
       brightness: 1.5,
       blur: 0.1,
@@ -190,15 +194,23 @@ class MainRoot extends SceneStateMachine<typeof MainRoot.State>{
     //--------------------------------------------------
 
     this.enterFunc.Load = () => {
+
       this.loader
         .add(TextureList.Entity.key, TextureList.Entity.path)
         .add(TextureList.Bullet.key, TextureList.Bullet.path)
+        .add("Package1@atlas0.png", "assets/UI/Package1@atlas0.png")
+        .add("Package1.fui", "assets/UI/Package1.fui", {xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER})
         .load((loader, resources) => {
-          this.nextState = MainRoot.State.Main;
+          this.nextState = MainScene.State.Main;
         });
     };
 
     this.enterFunc.Main = () => {
+      // fgui
+      const create = pixi_fairygui.addPackage(this, 'Package1');
+      const mainComp = create('Main');
+      app.stage.addChild(mainComp);
+
       // System登録
       // this.world.addSystem(new PointerSystem);
       this.world.addSystem(new LevelSystem);
@@ -285,4 +297,4 @@ class MainRoot extends SceneStateMachine<typeof MainRoot.State>{
   }
   
 }
-export const createMainRoot = (app: PIXI.Application) => () => new MainRoot(app);
+export const createMainScene = (app: PIXI.Application) => () => new MainScene(app);

@@ -15,7 +15,7 @@ export class DestroySystem extends System<GameContext> {
       const info = e.getComponent(CommonInfoComponent);
       // 範囲
       if(pos !== undefined &&
-         !(info !== undefined && !info.boundsRemove)){
+         !(info !== undefined && !info.boundsRemove)){ // 範囲外削除が無効になっていない
         const screenPos = pos.getScreenPos(context.view.camera);
         if(screenPos.x < (context.view?.width * -0.5 || 0) ||
           screenPos.y < (context.view?.height * -0.5 || 0) ||

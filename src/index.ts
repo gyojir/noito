@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js'
-import { initImGui, clearImGui } from './libs/util/util';
-import './scenes/RootScene';
+import { initImGui, clearImGui, Constructor } from './libs/util/util';
+import './scenes/AppRoot';
 import './libs/util/Shape'
 import { GAME_WIDTH, GAME_HEIGHT } from './def';
-import { createGameRoot } from './scenes/RootScene';
+import { createGameRoot } from './scenes/AppRoot';
 import InputManager from './input/InputManager';
 import * as ImGui_Impl from 'imgui-js/example/imgui_impl.js';
 
@@ -24,10 +24,22 @@ window.onload = async ()=>{
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     view: canvas,
-    backgroundColor: 0x000000,
+    backgroundColor: 0x444444,
     transparent: false
   });
   const root = createGameRoot(app);
+  // app.renderer.plugins.interaction.autoPreventDefault = false;
+  
+
+  // 重なり部分のイベント
+  [
+    'pointerdown',
+    'pointerover',
+    'pointerup',
+    'pointermove',
+    'pointerout',
+    'pointerupoutside'
+  ].forEach(e=> debugCanvas.addEventListener(e,  (ev:any) => canvas.dispatchEvent(new ev.constructor(ev.type, ev))));
   
   // 起動
   app.ticker.add((delta) => {
