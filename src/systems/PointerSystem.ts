@@ -25,8 +25,8 @@ export class PointerSystem extends System<GameContext>  {
       if(0 < pointer.x && pointer.x < pointerComponent.scene.cameras.main.width &&
         0 < pointer.y && pointer.y < pointerComponent.scene.cameras.main.height){
         const worldPointer = context.view.transformViewToWorld(pointer);
-        move.x = worldPointer.x - pos.x;
-        move.y = worldPointer.y - pos.y;
+        // move.x = worldPointer.x - pos.x;
+        // move.y = worldPointer.y - pos.y;
       }
     })
   }

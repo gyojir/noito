@@ -1,6 +1,5 @@
-import * as PIXI from 'pixi.js'
+import * as PIXI from 'pixi.js';
 import * as PIXIFilters from 'pixi-filters';
-// @ts-ignore
 import * as pixi_fairygui from 'pixi_fairygui';
 import * as ImGui from 'imgui-js/imgui.js';
 import * as ecs from '../libs/ecs/ecs';
@@ -209,6 +208,9 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       // fgui
       const create = pixi_fairygui.addPackage(this, 'Package1');
       const mainComp = create('Main');
+      mainComp.getChildByName("n2").on("buttonDown", (...a:any)=>{
+        console.log("button pushed!");
+      })
       app.stage.addChild(mainComp);
 
       // System登録

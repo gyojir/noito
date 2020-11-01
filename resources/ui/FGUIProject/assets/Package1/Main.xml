@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="560,560">
   <displayList>
-    <text id="n0_hwsd" name="n0" xy="36,95" size="46,36" fontSize="12" text="HELLO!&#xA;HELLO!"/>
+    <text id="n0_hwsd" name="n0" xy="-101,89" size="46,36" fontSize="12" text="HELLO!&#xA;HELLO!"/>
+    <movieclip id="n1_hwsd" name="n1" src="hwsd2" fileName="MovieClip1.jta" xy="46,211"/>
+    <component id="n2_hwsd" name="n2" src="hwsd3" fileName="Button1.xml" xy="46,98"/>
   </displayList>
+  <transition name="t0" autoPlay="true">
+    <item time="0" type="XY" target="n0_hwsd" tween="true" startValue="-101,89" endValue="65,89" duration="24" ease="Linear"/>
+  </transition>
 </component>
