@@ -30,7 +30,6 @@ import { SceneStateMachine } from './SceneStateMachine';
 import { CollideableComponent } from '../components/CollideableComponent';
 import { Circle, Box, Polygon } from '../libs/util/Shape';
 import { getAngle, Constructor } from '../libs/util/util';
-import { Pointer } from '../input/Pointer';
 import { GeneratorComponent } from '../components/GeneratorComponent';
 import { GeneratorSystem } from '../systems/GeneratorSystem';
 import { LambdaComponent } from '../components/LambdaComponent';
@@ -39,6 +38,8 @@ import { Entity } from '../libs/ecs/Entity';
 import TextureList from './TextureList';
 import { DebugDraw } from './DebugDraw';
 import { View } from '../libs/view/View';
+import { ParticleComponent } from '../components/ParticleComponent';
+import { ParticleSystem } from '../systems/ParticleSystem';
 
 class Line extends PIXI.Graphics {  
   lineWidth: number;
@@ -93,13 +94,57 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       entity.addComponent(MassComponent);
       entity.addComponent(MoveComponent);
       // entity.addComponent(PointerComponent, scene);
-      entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Entity.key].texture, 0, 0);
+      const sprite = entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Entity.key].texture, 0, 0);
       entity.addComponent(PhysicsBodyComponent, 15);
       entity.addComponent(CollideableComponent, new Circle(15));
       entity.addComponent(CommonInfoComponent, false);
+      const particle = entity.addComponent(ParticleComponent, 
+        this.view.container,
+        [this.loader.resources[TextureList.Entity.key].texture],
+        {
+          alpha: {
+            list: [
+              { value: 0.5, time: 0 },
+              { value: 0.0, time: 1 }
+            ],
+            isStepped: false
+          },
+          scale: {
+            list: [
+              { value: 1, time: 0 },
+              { value: 0.9, time: 1 }
+            ],
+            isStepped: false
+          },
+          speed: {
+            list: [
+              { value: 0, time: 0 },
+              // { value: 100, time: 1 }
+            ],
+            isStepped: false
+          },
+          // startRotation: { min: 0, max: 360 },
+          // rotationSpeed: { min: 0, max: 0 },
+          lifetime: { min: 0.05, max: 0.05 },
+          frequency: 0.005,
+          spawnChance: 1,
+          particlesPerWave: 1,
+          // emitterLifetime: 0.1,
+          maxParticles: 100,
+          pos: { x: 0, y: 0 },
+          addAtBack: false,
+          spawnType: "point",
+          emit: true
+        },
+        (delta) => {
+          particle.emitter.spawnPos.x = pos.x;
+          particle.emitter.spawnPos.y = pos.y;
+          particle.emitter.update(delta);
+        });
 
       pos.x = 0;
       pos.y = 0;
+
 
       return entity;
     },
@@ -225,6 +270,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       this.world.addSystem(new BulletSystem);
       this.world.addSystem(new PhysicsSystem);
       this.world.addSystem(new MoveSystem);
+      this.world.addSystem(new ParticleSystem);
       this.world.addSystem(new RenderSystem(this.context.view));
 
       this.context.createPlatform(this.world, new Core.Math.Vector2(), [

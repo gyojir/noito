@@ -24,6 +24,7 @@
     "pako": "^1.0.11",
     "phaser": "^3.20.1",
     "pixi-filters": "^3.1.1",
+    "pixi-particles": "^4.3.0",
     "pixi.js": "^5.3.3",
     "pixi_fairygui": "git+https://github.com/gyojir/FairyGUI_PIXI.git",
     "sat": "^0.8.0",
