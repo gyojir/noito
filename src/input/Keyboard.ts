@@ -20,7 +20,9 @@ export class Keyboard{
     
     // イベント
     window.addEventListener('keydown', (ev)=>{
-      this.data.downCount[ev.key] = 1;
+      if(this.data.downCount[ev.key] <= 0){
+        this.data.downCount[ev.key] = 1;
+      }
     });
     window.addEventListener('keyup', (ev)=>{
       this.data.downCount[ev.key] = -1;
