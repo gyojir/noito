@@ -31,6 +31,7 @@ export abstract class SceneStateMachine<T extends StateType> extends StateMachin
   // オーバーライドしたい場合はonDestroyOverrideを使う
   readonly onDestroy = () => {
     this.onDestroyOverride();
+    this.view.destroy();
   }
 
   onDestroyOverride() {

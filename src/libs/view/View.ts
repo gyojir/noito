@@ -54,6 +54,15 @@ export class View {
   render(renderer: PIXI.Renderer){
     renderer.render(this.offsetContainer, this.renderTex);
   }
+
+  destroy(){
+    this.renderSprite.destroy();
+    this.renderTex.destroy();
+    this.debugContainer.destroy();
+    this.debugOffsetContainer.destroy();
+    this.container.destroy();
+    this.offsetContainer.destroy();
+  }
   
   worldToViewMatrixWithoutTranslate(){
     let mat = new Core.Math.Matrix3();

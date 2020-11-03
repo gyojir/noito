@@ -4,6 +4,7 @@ import { Entity } from './Entity';
 import { Component } from './Component';
 import { ConstructorArgs, Constructor } from '../util/util';
 import bitset from 'mnemonist/bit-set';
+import { assert } from '../core/core';
 
 const MAX_COMPONENT_NUM = 256;
 
@@ -45,7 +46,7 @@ class ComponentMask{
 }
 
 export class World {
-  static idSeq: number = 0;
+  idSeq: number = 0;
   systems: System<any>[] = [];
   componentMasks: ComponentMask[] = []; 
   componentPools: Map<number, Map<number, Component>> = new Map();
@@ -63,7 +64,7 @@ export class World {
   }
 
   createEntity(): Entity {
-    let index = this.entityFreeList.pop() || World.idSeq++;
+    let index = this.entityFreeList.pop() || this.idSeq++;
     
     if(this.componentMasks.length < index){
       this.componentMasks.push(new ComponentMask());
@@ -129,7 +130,8 @@ export class World {
   }
   
   * makeIterator(families: number[]) {
-    for (let i = 0; i < World.idSeq; i++) {
+    for (let i = 0; i < this.idSeq; i++) {
+      assert(i < this.componentMasks.length);
       if(!this.componentMasks[i].hasComponents(families)){
         continue;
       }

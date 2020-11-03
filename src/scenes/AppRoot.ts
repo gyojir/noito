@@ -41,6 +41,11 @@ class AppRoot extends SceneStateMachine<typeof AppRoot.State>{
     if(ImGui.Button("destroy")) {
       this.exitCode = 0;
     }
+    
+    // ゲーム終了
+    if(ImGui.Button("reload")) {
+      this.nextState = AppRoot.State.Init;
+    }
   }
 
   onUpdateCalledOverride(){

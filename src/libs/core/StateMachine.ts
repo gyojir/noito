@@ -140,10 +140,11 @@ export abstract class StateMachine<State extends StateType> extends StateMachine
   }
 
   leaveState(): void {    
-    // 子供が先に抜ける
-    Object.values(this._childs).forEach(c => c.leaveState());
+    // 子供が先に抜ける(破棄する)
+    this.allChilds.forEach(c => { 
+      c.destroy();
+    });
     this._childs = {};
-    Object.values(this._weakChilds).forEach(c => c.leaveState());
     this._weakChilds = {};
 
     this.callLeaveState();

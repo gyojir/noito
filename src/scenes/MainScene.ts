@@ -85,6 +85,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
 
   world = new ecs.World();
   loader = new PIXI.Loader();
+  uiContainer?: PIXI.Container;
   context: GameContext = {
     view: this.view,
     createPlayer: (world: ecs.World) => {
@@ -252,11 +253,11 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     this.enterFunc.Main = () => {
       // fgui
       const create = pixi_fairygui.addPackage(this, 'Package1');
-      const mainComp = create('Main');
-      mainComp.getChildByName("n2").on("buttonDown", (...a:any)=>{
+      this.uiContainer = create('Main');
+      this.uiContainer.getChildByName("n2").on("buttonDown", (...a:any)=>{
         console.log("button pushed!");
       })
-      app.stage.addChild(mainComp);
+      app.stage.addChild(this.uiContainer);
 
       // System登録
       // this.world.addSystem(new PointerSystem);
@@ -299,8 +300,8 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   }
 
   debugDraw() {
-    // コリジョン表示
     if (true) {
+      // コリジョン表示
       this.world.getEntities([
         CollideableComponent,
         PositionComponent
@@ -318,6 +319,8 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         DebugDraw.Instance.drawShape(coll.shape.getAABB(getAngle(dir)), pos, 0, this.view);
       });
       
+      ImGui.LabelText("fps", `${Math.floor(1000 / this.app.ticker.deltaMS)}`);
+
       this.world.getEntities([PlayerComponent]).forEach(e => {
         const pos = e.getComponent(PositionComponent);
         ImGui.LabelText("pos", `${Math.floor(pos?.x || 0)},${Math.floor(pos?.y || 0)}`);
@@ -338,6 +341,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   }
 
   onDestroyOverride() {
+    this.uiContainer?.destroy();
   }
   
   onUpdateCalledOverride(){
