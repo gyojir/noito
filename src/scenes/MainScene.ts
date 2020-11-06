@@ -43,25 +43,25 @@ import { ParticleComponent } from '../components/ParticleComponent';
 import { ParticleSystem } from '../systems/ParticleSystem';
 import * as Package1 from '../exportedUI/Package1/Package1Binder';
 
-class Line extends PIXI.Graphics {  
+class Line extends PIXI.Graphics {
   lineWidth: number;
   lineColor: number;
   constructor(p0: Core.Types.Math.Vector2Like, p1: Core.Types.Math.Vector2Like, lineWidth?: number, lineColor?: number) {
-      super();
-      
-      this.lineWidth = lineWidth || 5;
-      this.lineColor = lineColor || 0x000000;
-      this.lineStyle(this.lineWidth, this.lineColor);
+    super();
 
-      this.moveTo(p0.x || 0, p0.y || 0);
-      this.lineTo(p1.x || 0, p1.y || 0);
+    this.lineWidth = lineWidth || 5;
+    this.lineColor = lineColor || 0x000000;
+    this.lineStyle(this.lineWidth, this.lineColor);
+
+    this.moveTo(p0.x || 0, p0.y || 0);
+    this.lineTo(p1.x || 0, p1.y || 0);
   }
-  
-  updatePoints(p0: Core.Types.Math.Vector2Like, p1: Core.Types.Math.Vector2Like) {      
-      this.clear();
-      this.lineStyle(this.lineWidth, this.lineColor);
-      this.moveTo(p0.x || 0, p0.y || 0);
-      this.lineTo(p1.x || 0, p1.y || 0);
+
+  updatePoints(p0: Core.Types.Math.Vector2Like, p1: Core.Types.Math.Vector2Like) {
+    this.clear();
+    this.lineStyle(this.lineWidth, this.lineColor);
+    this.moveTo(p0.x || 0, p0.y || 0);
+    this.lineTo(p1.x || 0, p1.y || 0);
   }
 }
 
@@ -101,7 +101,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       entity.addComponent(PhysicsBodyComponent, 15);
       entity.addComponent(CollideableComponent, new Circle(15));
       entity.addComponent(CommonInfoComponent, false);
-      const particle = entity.addComponent(ParticleComponent, 
+      const particle = entity.addComponent(ParticleComponent,
         this.view.container,
         [this.loader.resources[TextureList.Entity.key].texture],
         {
@@ -220,9 +220,9 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   };
 
   constructor(app: PIXI.Application) {
-    super({app});
+    super({ app });
     this.view.container.interactive = true;
-    this.view.container.on("pointerdown", ()=>console.log("aho"))
+    this.view.container.on("pointerdown", () => console.log("aho"))
 
     // ブラーフィルター作成
     let blur = new PIXI.filters.BlurFilter();
@@ -246,7 +246,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         .add(TextureList.Entity.key, TextureList.Entity.path)
         .add(TextureList.Bullet.key, TextureList.Bullet.path)
         .add("Package1@atlas0.png", "assets/UI/Package1@atlas0.png")
-        .add("Package1.fui", "assets/UI/Package1.fui", {xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER})
+        .add("Package1.fui", "assets/UI/Package1.fui", { xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER })
         .load((loader, resources) => {
           this.nextState = MainScene.State.Main;
         });
@@ -293,10 +293,10 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
 
         const DEAD_ZONE_HALF_WIDTH = 50;
         const DEAD_ZONE_HALF_HEIGHT = 50;
-        if(Math.abs(pos.x) > DEAD_ZONE_HALF_WIDTH){
+        if (Math.abs(pos.x) > DEAD_ZONE_HALF_WIDTH) {
           this.context.view.camera.pos.x += (Math.abs(pos.x) - DEAD_ZONE_HALF_WIDTH) * Math.sign(pos.x);
         }
-        if(Math.abs(pos.y) > DEAD_ZONE_HALF_HEIGHT){
+        if (Math.abs(pos.y) > DEAD_ZONE_HALF_HEIGHT) {
           this.context.view.camera.pos.y += (Math.abs(pos.y) - DEAD_ZONE_HALF_HEIGHT) * Math.sign(pos.y);
         }
       });
@@ -322,7 +322,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         DebugDraw.Instance.drawShape(coll.shape, pos, getAngle(dir), this.view);
         DebugDraw.Instance.drawShape(coll.shape.getAABB(getAngle(dir)), pos, 0, this.view);
       });
-      
+
       ImGui.LabelText("fps", `${Math.floor(1000 / this.app.ticker.deltaMS)}`);
 
       this.world.getEntities([PlayerComponent]).forEach(e => {
@@ -330,9 +330,9 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         ImGui.LabelText("pos", `${Math.floor(pos?.x || 0)},${Math.floor(pos?.y || 0)}`);
       });
 
-      this.view.renderSprite.filters.map((e,i)=>{
-        if(e instanceof PIXIFilters.AdvancedBloomFilter){
-          if(ImGui.TreeNode(`filter[${i}]`)) {
+      this.view.renderSprite.filters.map((e, i) => {
+        if (e instanceof PIXIFilters.AdvancedBloomFilter) {
+          if (ImGui.TreeNode(`filter[${i}]`)) {
             ImGui.Checkbox("enable", (value = e.enabled) => e.enabled = value);
             ImGui.SliderFloat("brightness", (value = e.brightness) => e.brightness = value, 0, 10);
             ImGui.SliderFloat("threshold", (value = e.threshold) => e.threshold = value, 0, 10);
@@ -347,10 +347,10 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   onDestroyOverride() {
     this.uiMain?.component.destroy();
   }
-  
-  onUpdateCalledOverride(){
+
+  onUpdateCalledOverride() {
     this.context.view.update()
   }
-  
+
 }
 export const createMainScene = (app: PIXI.Application) => () => new MainScene(app);
