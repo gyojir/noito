@@ -1,0 +1,11 @@
+{
+  "name": "my-plugin",
+  "displayName": "test_gen_code",
+  "description": "",
+  "version": "1.0",
+  "author": {
+    "name": ""
+  },
+  "icon": "",
+  "main": "main.lua"
+}

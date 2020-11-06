@@ -11,10 +11,10 @@
     "allowGenCode": true,
     "codePath": "",
     "classNamePrefix": "UI_",
-    "memberNamePrefix": "m_",
+    "memberNamePrefix": "_",
     "packageName": null,
-    "ignoreNoname": true,
-    "getMemberByName": false,
+    "ignoreNoname": false,
+    "getMemberByName": true,
     "codeType": ""
   },
   "includeHighResolution": 0,

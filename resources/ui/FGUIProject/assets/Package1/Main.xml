@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="560,560">
+  <controller name="control_1" pages="0,a,1,b" selected="0">
+    <action type="play_transition" fromPage="" toPage="" transition="t0"/>
+  </controller>
   <displayList>
-    <text id="n0_hwsd" name="n0" xy="-101,89" size="46,36" fontSize="12" text="HELLO!&#xA;HELLO!"/>
+    <text id="n0_hwsd" name="n0" xy="-101,89" size="46,54" fontSize="12" vars="true" text="HELLO!&#xA;HELLO!&#xA;{aaaa=100}"/>
     <movieclip id="n1_hwsd" name="n1" src="hwsd2" fileName="MovieClip1.jta" xy="46,211"/>
-    <component id="n2_hwsd" name="n2" src="hwsd3" fileName="Button1.xml" xy="46,98"/>
+    <component id="n2_hwsd" name="n2" src="hwsd3" fileName="Button1.xml" xy="46,38"/>
+    <text id="n4_hwsd" name="n4" xy="358,26" size="165,42" fontSize="30" autoClearText="true" text="score=1234"/>
   </displayList>
   <transition name="t0" autoPlay="true">
     <item time="0" type="XY" target="n0_hwsd" tween="true" startValue="-101,89" endValue="65,89" duration="24" ease="Linear"/>

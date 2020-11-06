@@ -5,5 +5,5 @@
     <movieclip id="hwsd2" name="MovieClip1.jta" path="/"/>
     <component id="hwsd3" name="Button1.xml" path="/"/>
   </resources>
-  <publish name="" path="..\..\..\public\assets\UI" packageCount="2"/>
+  <publish name="" path="..\..\..\public\assets\UI" packageCount="2" genCode="true" codePath="..\..\..\src\exportedUI"/>
 </packageDescription>

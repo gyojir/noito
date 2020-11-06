@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import * as PIXIFilters from 'pixi-filters';
 import * as pixi_fairygui from 'pixi_fairygui';
+import { FComponent } from 'pixi_fairygui/dist/def/index';
 import * as ImGui from 'imgui-js/imgui.js';
 import * as ecs from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
@@ -40,6 +41,7 @@ import { DebugDraw } from './DebugDraw';
 import { View } from '../libs/view/View';
 import { ParticleComponent } from '../components/ParticleComponent';
 import { ParticleSystem } from '../systems/ParticleSystem';
+import * as Package1 from '../exportedUI/Package1/Package1Binder';
 
 class Line extends PIXI.Graphics {  
   lineWidth: number;
@@ -73,7 +75,6 @@ export interface GameContext {
   // pointer: Pointer
 }
 
-
 /**
  * MainScene
  */
@@ -85,7 +86,8 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
 
   world = new ecs.World();
   loader = new PIXI.Loader();
-  uiContainer?: PIXI.Container;
+  ui?: Package1.Package1Binder;
+  uiMain?: Package1.UI_Main;
   context: GameContext = {
     view: this.view,
     createPlayer: (world: ecs.World) => {
@@ -252,12 +254,12 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
 
     this.enterFunc.Main = () => {
       // fgui
-      const create = pixi_fairygui.addPackage(this, 'Package1');
-      this.uiContainer = create('Main');
-      this.uiContainer.getChildByName("n2").on("buttonDown", (...a:any)=>{
+      this.ui = new Package1.Package1Binder(this);
+      this.uiMain = this.ui.createUI_Main();
+      this.uiMain._n2.component.on("buttonDown", (...a: any) => {
         console.log("button pushed!");
       })
-      app.stage.addChild(this.uiContainer);
+      app.stage.addChild(this.uiMain.component);
 
       // System登録
       // this.world.addSystem(new PointerSystem);
@@ -281,7 +283,9 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     }
     this.updateFunc.Main = () => {
       this.world.update(this.app.ticker.deltaMS, this.context);
-      
+
+      this.uiMain && (this.uiMain._n4.text = "hoge");
+
       // プレイヤー追尾
       this.world.getEntities([PlayerComponent]).forEach(e => {
         // スクリーン中心原点の座標
@@ -341,7 +345,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   }
 
   onDestroyOverride() {
-    this.uiContainer?.destroy();
+    this.uiMain?.component.destroy();
   }
   
   onUpdateCalledOverride(){
