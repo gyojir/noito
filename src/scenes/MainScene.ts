@@ -1,7 +1,5 @@
 import * as PIXI from 'pixi.js';
 import * as PIXIFilters from 'pixi-filters';
-import * as pixi_fairygui from 'pixi_fairygui';
-import { FComponent } from 'pixi_fairygui/dist/def/index';
 import * as ImGui from 'imgui-js/imgui.js';
 import * as ecs from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
@@ -256,6 +254,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       // fgui
       this.ui = new Package1.Package1Binder(this);
       this.uiMain = this.ui.createUI_Main();
+      this.uiMain._t0.play();
       this.uiMain._n2.component.on("buttonDown", (...a: any) => {
         console.log("button pushed!");
       })

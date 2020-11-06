@@ -3,7 +3,7 @@ local function fuiTypeToMyType(type)
     elseif type == 'fgui.GImage' then return 'PIXI.Sprite'
     elseif type == 'fgui.GTextField' then return 'PIXI.Text'
     elseif type == 'fgui.GMovieClip' then return 'PIXI.AnimatedSprite'
-    elseif type == 'fgui.Transition' then return 'unknown'
+    elseif type == 'fgui.Transition' then return 'ExtendedAnimeInstance'
     else return type end
 end
 
@@ -30,7 +30,7 @@ local function genCode(handler)
 
     local writer = CodeWriter.new({ blockFromNewLine=false, usingTabs=true  })
     writer:writeln('import * as pixi_fairygui from \'pixi_fairygui\';')
-    writer:writeln('import { FComponent } from \'pixi_fairygui/dist/def/index\';')
+    writer:writeln('import { FComponent, ExtendedAnimeInstance } from \'pixi_fairygui/dist/def/index\';')
     writer:writeln()
 
     local classCnt = classes.Count
@@ -70,18 +70,18 @@ local function genCode(handler)
                 else
                     writer:writeln('this.%s = <%s>(this.component.getChildAt(%s));', memberInfo.varName, fuiTypeToMyType(memberInfo.type), memberInfo.index)
                 end
-            -- elseif memberInfo.group==1 then
+            elseif memberInfo.group==1 then
             --     if getMemberByName then
             --         writer:writeln('this.%s = this.getController("%s");', memberInfo.varName, memberInfo.name)
             --     else
             --         writer:writeln('this.%s = this.getControllerAt(%s);', memberInfo.varName, memberInfo.index)
             --     end
-            -- else
-            --     if getMemberByName then
-            --         writer:writeln('this.%s = this.getTransition("%s");', memberInfo.varName, memberInfo.name)
-            --     else
-            --         writer:writeln('this.%s = this.getTransitionAt(%s);', memberInfo.varName, memberInfo.index)
-            --     end
+            else
+                if getMemberByName then
+                    writer:writeln('this.%s = <%s>(this.component.transition?.["%s"]);', memberInfo.varName, fuiTypeToMyType(memberInfo.type), memberInfo.name)
+                else
+                    writer:writeln('this.%s = <%s>(Object.values(this.component.transition || {})[%s]);', memberInfo.varName, memberInfo.index)
+                end
             end
         end
         writer:endBlock() --constructor

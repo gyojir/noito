@@ -7,9 +7,9 @@
     <text id="n0_hwsd" name="n0" xy="-101,89" size="46,54" fontSize="12" vars="true" text="HELLO!&#xA;HELLO!&#xA;{aaaa=100}"/>
     <movieclip id="n1_hwsd" name="n1" src="hwsd2" fileName="MovieClip1.jta" xy="46,211"/>
     <component id="n2_hwsd" name="n2" src="hwsd3" fileName="Button1.xml" xy="46,38"/>
-    <text id="n4_hwsd" name="n4" xy="358,26" size="165,42" fontSize="30" autoClearText="true" text="score=1234"/>
+    <text id="n4_hwsd" name="n4" xy="358,26" size="165,41" fontSize="30" autoClearText="true" text="score=1234"/>
   </displayList>
-  <transition name="t0" autoPlay="true">
+  <transition name="t0">
     <item time="0" type="XY" target="n0_hwsd" tween="true" startValue="-101,89" endValue="65,89" duration="24" ease="Linear"/>
   </transition>
 </component>
