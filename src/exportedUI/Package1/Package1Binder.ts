@@ -6,7 +6,6 @@ import { FComponent, ExtendedAnimeInstance } from 'pixi_fairygui/dist/def/index'
 export class UI_Main {
 	public component: FComponent;
 	public _n0: PIXI.Text;
-	public _n1: PIXI.AnimatedSprite;
 	public _n2: UI_Button1;
 	public _n4: PIXI.Text;
 	public _t0: ExtendedAnimeInstance;
@@ -15,7 +14,6 @@ export class UI_Main {
 	constructor(component: FComponent) {
 		this.component = component;
 		this._n0 = <PIXI.Text>(this.component.getChildByName("n0"));
-		this._n1 = <PIXI.AnimatedSprite>(this.component.getChildByName("n1"));
 		this._n2 = new UI_Button1(<FComponent>(this.component.getChildByName("n2")));
 		this._n4 = <PIXI.Text>(this.component.getChildByName("n4"));
 		this._t0 = <ExtendedAnimeInstance>(this.component.transition?.["t0"]);

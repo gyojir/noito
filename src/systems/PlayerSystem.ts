@@ -86,6 +86,7 @@ export class PlayerSystem extends System<GameContext> {
 
     if(count === 0 &&
       this.world !== undefined){
+      context.score = 0;
       context.createPlayer(this.world);
     }
   }

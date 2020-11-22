@@ -66,6 +66,7 @@ class Line extends PIXI.Graphics {
 
 export interface GameContext {
   view: View;
+  score: number,
   createPlayer: (world: ecs.World) => ecs.Entity;
   createEnemy: (world: ecs.World, pos: Core.Types.Math.Vector2Like, dir: Core.Types.Math.Vector2Like) => ecs.Entity;
   createBullet: (world: ecs.World, pos: Core.Types.Math.Vector2Like, dir: Core.Types.Math.Vector2Like, type: BulletType) => ecs.Entity;
@@ -88,6 +89,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   uiMain?: Package1.UI_Main;
   context: GameContext = {
     view: this.view,
+    score: 0,
     createPlayer: (world: ecs.World) => {
       let entity = world.createEntity();
       let pos = entity.addComponent(PositionComponent);
@@ -254,9 +256,9 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       // fgui
       this.ui = new Package1.Package1Binder(this);
       this.uiMain = this.ui.createUI_Main();
-      this.uiMain._t0.play();
       this.uiMain._n2.component.on("buttonDown", (...a: any) => {
-        console.log("button pushed!");
+        this.uiMain?._t0.restart();
+        // this.uiMain?._t0.play();
       })
       app.stage.addChild(this.uiMain.component);
 
@@ -283,7 +285,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     this.updateFunc.Main = () => {
       this.world.update(this.app.ticker.deltaMS, this.context);
 
-      this.uiMain && (this.uiMain._n4.text = "hoge");
+      this.uiMain && (this.uiMain._n4.text = `score ${this.context.score}`);
 
       // プレイヤー追尾
       this.world.getEntities([PlayerComponent]).forEach(e => {

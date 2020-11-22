@@ -33,6 +33,7 @@ export class BulletSystem extends System<GameContext> {
       for(let opposite of coll.hitList){
         if(bullet.type === BulletType.Player &&
           opposite.getComponent(EnemyComponent) !== undefined){
+          context.score += 1;
           info.active = false;
           return;
         }else if(bullet.type === BulletType.Enemy &&
