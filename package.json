@@ -21,6 +21,7 @@
     "imgui-js": "git+https://github.com/gyojir/imgui-js.git",
     "lodash": "^4.17.20",
     "mnemonist": "^0.31.3",
+    "mu-gen": "git+https://github.com/gyojir/mu-gen.git",
     "pako": "^1.0.11",
     "phaser": "^3.20.1",
     "pixi-filters": "^3.1.1",

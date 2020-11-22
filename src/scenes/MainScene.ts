@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import * as PIXIFilters from 'pixi-filters';
 import * as ImGui from 'imgui-js/imgui.js';
+import * as mugen from 'mu-gen';
 import * as ecs from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
 import { PositionComponent } from '../components/PositionComponent';
@@ -40,6 +41,10 @@ import { View } from '../libs/view/View';
 import { ParticleComponent } from '../components/ParticleComponent';
 import { ParticleSystem } from '../systems/ParticleSystem';
 import * as Package1 from '../exportedUI/Package1/Package1Binder';
+import InputManager from '../input/InputManager';
+
+const key = InputManager.Instance.keyboard;
+const pointer = InputManager.Instance.pointer;
 
 class Line extends PIXI.Graphics {
   lineWidth: number;
@@ -80,6 +85,7 @@ export interface GameContext {
 class MainScene extends SceneStateMachine<typeof MainScene.State>{
   static State = {
     Load: "Load",
+    Wait: "Wait",
     Main: "Main"
   } as const;
 
@@ -248,11 +254,11 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         .add("Package1@atlas0.png", "assets/UI/Package1@atlas0.png")
         .add("Package1.fui", "assets/UI/Package1.fui", { xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER })
         .load((loader, resources) => {
-          this.nextState = MainScene.State.Main;
+          this.nextState = MainScene.State.Wait;
         });
     };
-
-    this.enterFunc.Main = () => {
+    
+    this.leaveFunc.Load = () => {
       // fgui
       this.ui = new Package1.Package1Binder(this);
       this.uiMain = this.ui.createUI_Main();
@@ -282,13 +288,29 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         new Core.Curves.Line([320, -130, -200, -150]),
       ]);
     }
+
+    this.updateFunc.Wait = () => {
+      this.world.update(this.app.ticker.deltaMS, this.context);
+      
+      if(this.world.getEntities([PlayerComponent]).length === 0 &&
+        pointer.data.justUp){
+        this.context.score = 0;
+        this.context.createPlayer(this.world);
+        this.nextState = MainScene.State.Main;
+      }
+    }
+
+    this.enterFunc.Main = () => {
+      mugen.playBGM(8,3);
+    }
+    
     this.updateFunc.Main = () => {
       this.world.update(this.app.ticker.deltaMS, this.context);
-
       this.uiMain && (this.uiMain._n4.text = `score ${this.context.score}`);
 
       // プレイヤー追尾
-      this.world.getEntities([PlayerComponent]).forEach(e => {
+      const player = this.world.getEntities([PlayerComponent])
+      player.forEach(e => {
         // スクリーン中心原点の座標
         const pos = new Core.Math.Vector2(e.getComponent(PositionComponent)?.getScreenPos(this.context.view.camera));
 
@@ -301,6 +323,14 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
           this.context.view.camera.pos.y += (Math.abs(pos.y) - DEAD_ZONE_HALF_HEIGHT) * Math.sign(pos.y);
         }
       });
+
+      if(player.length === 0){
+        this.nextState = MainScene.State.Wait;
+      }
+    }
+
+    this.leaveFunc.Main = () => {
+      mugen.stopBGM();
     }
   }
 
@@ -323,8 +353,6 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
         DebugDraw.Instance.drawShape(coll.shape, pos, getAngle(dir), this.view);
         DebugDraw.Instance.drawShape(coll.shape.getAABB(getAngle(dir)), pos, 0, this.view);
       });
-
-      ImGui.LabelText("fps", `${Math.floor(1000 / this.app.ticker.deltaMS)}`);
 
       this.world.getEntities([PlayerComponent]).forEach(e => {
         const pos = e.getComponent(PositionComponent);

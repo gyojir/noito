@@ -1,3 +1,4 @@
+import * as mugen from 'mu-gen';
 import { System } from '../libs/ecs/ecs';
 import { GameContext } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
@@ -34,6 +35,7 @@ export class EnemySystem extends System<GameContext> {
         if(bullet !== undefined && 
           bullet.type === BulletType.Player){
           info.active = false;
+          mugen.playSE(mugen.Presets.Select);
           return;
         }
       }

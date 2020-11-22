@@ -1,3 +1,4 @@
+import * as mugen from 'mu-gen';
 import { System } from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
 import { GameContext } from '../scenes/MainScene';
@@ -20,6 +21,9 @@ export class PlayerSystem extends System<GameContext> {
   update(dt: number, context: GameContext){
     let count = 0;
 
+    const key = InputManager.Instance.keyboard;
+    const pointer = InputManager.Instance.pointer;
+
     this.forEach(e=>{
       count++;
       const pos = e.getComponent(PositionComponent);
@@ -41,10 +45,6 @@ export class PlayerSystem extends System<GameContext> {
       mv.y *= 0.8;
       // ジャンプ用
       let gravityMove = move.getMove("gravity");
-
-
-      const key = InputManager.Instance.keyboard;
-      const pointer = InputManager.Instance.pointer;
 
       if (key.isDown(Key.ArrowLeft)){
         mv.x += -3;
@@ -73,6 +73,7 @@ export class PlayerSystem extends System<GameContext> {
         const enemy = opposite.getComponent(EnemyComponent);
         if(enemy !== undefined){
           info.active = false; // 死亡
+          mugen.playSE(mugen.Presets.Explosion);
           return;
         }
       }
@@ -81,13 +82,8 @@ export class PlayerSystem extends System<GameContext> {
       if(Math.random() < dt * 0.001 * 10){
         const dir = new Core.Math.Vector2(Math.random() - 0.5, Math.random() - 0.5).normalize();
         context.createBullet(this.world, pos, dir, BulletType.Player);
+        // mugen.playSE(mugen.Presets.Laser);
       }
     })
-
-    if(count === 0 &&
-      this.world !== undefined){
-      context.score = 0;
-      context.createPlayer(this.world);
-    }
   }
 }

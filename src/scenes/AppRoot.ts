@@ -46,6 +46,9 @@ class AppRoot extends SceneStateMachine<typeof AppRoot.State>{
     if(ImGui.Button("reload")) {
       this.nextState = AppRoot.State.Init;
     }
+    
+    ImGui.LabelText("fps", `${Math.floor(1000 / this.app.ticker.deltaMS)}`);
+
   }
 
   onUpdateCalledOverride(){
