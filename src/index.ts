@@ -9,7 +9,8 @@ import InputManager from './input/InputManager';
 import * as ImGui_Impl from 'imgui-js/example/imgui_impl.js';
 
 // サウンドシード
-mugen.setSeed(3655865);
+mugen.setSeed(6961167);
+mugen.createBGM("0", 8, 3);
 
 // 実行
 window.onload = async ()=>{

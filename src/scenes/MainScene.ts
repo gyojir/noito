@@ -301,7 +301,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     }
 
     this.enterFunc.Main = () => {
-      mugen.playBGM(8,3);
+      mugen.playBGM("0");
     }
     
     this.updateFunc.Main = () => {
@@ -330,7 +330,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     }
 
     this.leaveFunc.Main = () => {
-      mugen.stopBGM();
+      mugen.stopBGM("0");
     }
   }
 
