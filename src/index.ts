@@ -46,12 +46,15 @@ window.onload = async ()=>{
   document.body.appendChild(debugCanvas);
   await initImGui(debugCanvas);
 
+  // pixi setting
+  PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+  // create app
   const app = new PIXI.Application({
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     view: canvas,
     backgroundColor: 0x444444,
-    transparent: false
+    transparent: false,
   });
   const root = createGameRoot(app);
   // app.renderer.plugins.interaction.autoPreventDefault = false;
