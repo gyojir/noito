@@ -6,7 +6,8 @@
   <displayList>
     <text id="n0_hwsd" name="n0" xy="-141,101" size="110,41" fontSize="30" vars="true" text="HELLO!"/>
     <component id="n2_hwsd" name="n2" src="hwsd3" fileName="Button1.xml" xy="46,38"/>
-    <text id="n4_hwsd" name="n4" xy="232,5" size="164,37" scale="2,2" font="ui://cijf2vuwf89h1r" fontSize="12" color="#ffffff" text="score 1234"/>
+    <text id="n4_hwsd" name="n4" xy="233,5" size="164,37" scale="2,2" visible="false" font="ui://cijf2vuwf89h1r" fontSize="12" color="#ffffff" text="score 1234"/>
+    <text id="n7_ifdw" name="n5" xy="280,280" pivot="0.5,0.5" anchor="true" size="228,72" scale="2,2" font="ui://cijf2vuwf89h1r" fontSize="12" color="#ffffff" align="center" text="TITLE&#xA;[TAP TO START]"/>
   </displayList>
   <transition name="t0">
     <item time="0" type="XY" target="n0_hwsd" tween="true" startValue="-141,101" endValue="43,101" duration="12" ease="Cubic.Out"/>

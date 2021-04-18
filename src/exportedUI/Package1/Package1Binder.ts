@@ -8,6 +8,7 @@ export class UI_Main {
 	public _n0: PIXI.Text;
 	public _n2: UI_Button1;
 	public _n4: PIXI.Text;
+	public _n5: PIXI.Text;
 	public _t0: ExtendedAnimeInstance;
 	public static URL: string = "ui://cijf2vuwaanj0";
 
@@ -16,6 +17,7 @@ export class UI_Main {
 		this._n0 = <PIXI.Text>(this.component.getChildByName("n0"));
 		this._n2 = new UI_Button1(<FComponent>(this.component.getChildByName("n2")));
 		this._n4 = <PIXI.Text>(this.component.getChildByName("n4"));
+		this._n5 = <PIXI.Text>(this.component.getChildByName("n5"));
 		this._t0 = <ExtendedAnimeInstance>(this.component.transition?.["t0"]);
 	}
 }

@@ -304,6 +304,11 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
 
     this.enterFunc.Main = () => {
       mugen.playBGM("0");
+      
+      if(this.uiMain) {
+        this.uiMain._n4.visible = true;
+        this.uiMain._n5.visible = false;
+      }
     }
     
     this.updateFunc.Main = () => {
