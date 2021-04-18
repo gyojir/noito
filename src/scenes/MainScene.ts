@@ -42,6 +42,7 @@ import { ParticleComponent } from '../components/ParticleComponent';
 import { ParticleSystem } from '../systems/ParticleSystem';
 import * as Package1 from '../exportedUI/Package1/Package1Binder';
 import InputManager from '../input/InputManager';
+import { Key } from 'ts-key-enum';
 
 const key = InputManager.Instance.keyboard;
 const pointer = InputManager.Instance.pointer;
@@ -165,7 +166,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       entity.addComponent(EnemyComponent);
       entity.addComponent(CollideableComponent, new Circle(15));
       entity.addComponent(CommonInfoComponent);
-      entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Entity.key].texture, pos.x, pos.y, 0x882222);
+      entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Entity.key].texture, pos.x, pos.y, 0xFF2222);
       entity.addComponent(GeneratorComponent, function* () {
         // 移動
         while (true) {
@@ -233,13 +234,14 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     // ブラーフィルター作成
     let blur = new PIXI.filters.BlurFilter();
     let glitch = new PIXIFilters.GlitchFilter();
-    let bloom = new PIXIFilters.AdvancedBloomFilter({
+    let abloom = new PIXIFilters.AdvancedBloomFilter({
       threshold: 0.3,
       bloomScale: 1.5,
       brightness: 1.5,
       blur: 0.1,
       quality: 20
     });
+    let bloom = new PIXIFilters.BloomFilter(3);
     this.view.renderSprite.filters = [bloom];
 
     //--------------------------------------------------
@@ -293,7 +295,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       this.world.update(this.app.ticker.deltaMS, this.context);
       
       if(this.world.getEntities([PlayerComponent]).length === 0 &&
-        pointer.data.justUp){
+        (pointer.data.justUp || key.isTriggered(" "))){
         this.context.score = 0;
         this.context.createPlayer(this.world);
         this.nextState = MainScene.State.Main;
@@ -360,9 +362,9 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       });
 
       this.view.renderSprite.filters.map((e, i) => {
-        if (e instanceof PIXIFilters.AdvancedBloomFilter) {
-          if (ImGui.TreeNode(`filter[${i}]`)) {
-            ImGui.Checkbox("enable", (value = e.enabled) => e.enabled = value);
+        if (ImGui.TreeNode(`filter[${i}]`)) {
+          ImGui.Checkbox("enable", (value = e.enabled) => e.enabled = value);
+          if (e instanceof PIXIFilters.AdvancedBloomFilter) {
             ImGui.SliderFloat("brightness", (value = e.brightness) => e.brightness = value, 0, 10);
             ImGui.SliderFloat("threshold", (value = e.threshold) => e.threshold = value, 0, 10);
             ImGui.SliderFloat("bloomScale", (value = e.bloomScale) => e.bloomScale = value, 0, 10);

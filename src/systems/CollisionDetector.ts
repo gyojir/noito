@@ -24,13 +24,13 @@ const PARTITION_SIZE = 50;
 
 export class CollisionDetector {
   static detect(entities: Entity[], collided: (left: Candidate,right: Candidate)=>void){
-    const grid: Map<string, Candidate[]> = new Map();
+    const grid: Map<string, Map<number, Candidate>> = new Map();
 
     CollisionDetector.collect(grid, entities);
     CollisionDetector.collide(grid, collided);
   }
 
-  static collect(grid: Map<string, Candidate[]>, entities: Entity[]){
+  static collect(grid: Map<string, Map<number, Candidate>>, entities: Entity[]){
     entities.forEach(e=>{
       const pos = e.getComponent(PositionComponent);
       const coll = e.getComponent(CollideableComponent);
@@ -41,11 +41,12 @@ export class CollisionDetector {
         return;
       }
       
+      const aabb = coll.shape.getAABB(angle);
       const mv = move?.totalMove() || {x: 0, y: 0};
-      const left = Math.floor((pos.x + mv.x - (coll.shape.getAABB(angle).width/2)) / PARTITION_SIZE);
-      const right = Math.floor((pos.x + mv.x + (coll.shape.getAABB(angle).width/2)) / PARTITION_SIZE);
-      const up = Math.floor((pos.y + mv.y - (coll.shape.getAABB(angle).height/2)) / PARTITION_SIZE);
-      const bottom = Math.floor((pos.y + mv.y + (coll.shape.getAABB(angle).height/2)) / PARTITION_SIZE);
+      const left = Math.floor((pos.x + mv.x - (aabb.width/2)) / PARTITION_SIZE);
+      const right = Math.floor((pos.x + mv.x + (aabb.width/2)) / PARTITION_SIZE);
+      const up = Math.floor((pos.y + mv.y - (aabb.height/2)) / PARTITION_SIZE);
+      const bottom = Math.floor((pos.y + mv.y + (aabb.height/2)) / PARTITION_SIZE);
       const candidate = new Candidate(pos.x + mv.x, pos.y + mv.y, angle, coll, e);
       
       const getKey = (x: number, y: number)=>{
@@ -62,32 +63,30 @@ export class CollisionDetector {
       const get = (key: string)=> {
         let arr = grid.get(key);
         if(arr === undefined){
-          arr = [];
+          arr = new Map();
           grid.set(key, arr);
         }
         return arr;
       }
 
-      get(slots[0]).push(candidate);
-      if(slots[0] !== slots[1]) {get(slots[1]).push(candidate)}
-      if(slots[0] !== slots[2] && slots[1] !== slots[2]) {get(slots[2]).push(candidate)}
-      if(slots[0] !== slots[3] && slots[1] !== slots[3] && slots[2] !== slots[3]) {get(slots[3]).push(candidate)}
+      get(slots[0]).set(candidate.entity.id, candidate);
+      if(slots[0] !== slots[1]) {get(slots[1]).set(candidate.entity.id, candidate)}
+      if(slots[0] !== slots[2] && slots[1] !== slots[2]) {get(slots[2]).set(candidate.entity.id, candidate)}
+      if(slots[0] !== slots[3] && slots[1] !== slots[3] && slots[2] !== slots[3]) {get(slots[3]).set(candidate.entity.id, candidate)}
     })
   }
 
-  static collide(grid: Map<string, Candidate[]>, collided: (left: Candidate,right: Candidate)=>void) {
+  static collide(grid: Map<string, Map<number, Candidate>>, collided: (left: Candidate,right: Candidate)=>void) {
     grid.forEach(candidates=>{
       candidates.forEach(left => {
-        candidates.forEach(right =>{
-          if(left.entity.id === right.entity.id){
-            return;
-          }
+        candidates.delete(left.entity.id);
+        candidates.forEach(right => {
           if(CollisionDetector.isCollide(left, right)){
             collided(left, right);
           }
-        })
-      })
-    })
+        });
+      });
+    });
   }
   
   static isCollide(left: Candidate,right: Candidate) {

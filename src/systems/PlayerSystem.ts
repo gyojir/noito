@@ -82,7 +82,6 @@ export class PlayerSystem extends System<GameContext> {
       if(Math.random() < dt * 0.001 * 10){
         const dir = new Core.Math.Vector2(Math.random() - 0.5, Math.random() - 0.5).normalize();
         context.createBullet(this.world, pos, dir, BulletType.Player);
-        mugen.playSE(mugen.Presets.Laser);
       }
     })
   }
