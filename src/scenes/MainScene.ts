@@ -229,7 +229,6 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   constructor(app: PIXI.Application) {
     super({ app });
     this.view.container.interactive = true;
-    this.view.container.on("pointerdown", () => console.log("aho"))
 
     // ブラーフィルター作成
     let blur = new PIXI.filters.BlurFilter();
