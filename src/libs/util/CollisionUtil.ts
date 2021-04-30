@@ -1,24 +1,31 @@
 import * as Core from '../core/core';
 
-class Vector2Util {
-  static add(a: Core.Math.Vector2, b: Core.Math.Vector2): Core.Math.Vector2 {
-    return a.clone().add(b);
+export class Vector2Util {
+  static add(a: Core.Types.Math.Vector2Like, b: Core.Types.Math.Vector2Like): Core.Math.Vector2 {
+    return new Core.Math.Vector2(a).add(new Core.Math.Vector2(b));
   }
-  static sub(a: Core.Math.Vector2, b: Core.Math.Vector2): Core.Math.Vector2 {
-    return a.clone().subtract(b);
+  static sub(a: Core.Types.Math.Vector2Like, b: Core.Types.Math.Vector2Like): Core.Math.Vector2 {
+    return new Core.Math.Vector2(a).subtract(new Core.Math.Vector2(b));
   }
-  static mul(a: Core.Math.Vector2, b: Core.Math.Vector2): Core.Math.Vector2 {
-    return a.clone().multiply(b);
+  static mul(a: Core.Types.Math.Vector2Like, b: Core.Types.Math.Vector2Like): Core.Math.Vector2 {
+    return new Core.Math.Vector2(a).multiply(new Core.Math.Vector2(b));
   }
-  static scale(a: Core.Math.Vector2, s: number): Core.Math.Vector2 {
-    return a.clone().scale(s);
+  static scale(a: Core.Types.Math.Vector2Like, s: number): Core.Math.Vector2 {
+    return new Core.Math.Vector2(a).scale(s);
   }
-  static cross2d(a: Core.Math.Vector2, b: Core.Math.Vector2): number {
-    return a.cross(b);
+  static cross2d(a: Core.Types.Math.Vector2Like, b: Core.Types.Math.Vector2Like): number {
+    return new Core.Math.Vector2(a).cross(new Core.Math.Vector2(b));
   }
   // 法線ベクトル
-  static getNormal(a: Core.Math.Vector2): Core.Math.Vector2 {
-    return new Core.Math.Vector2(-a.y, a.x);
+  static getNormal(a: Core.Types.Math.Vector2Like): Core.Math.Vector2 {
+    const v = new Core.Math.Vector2(a);
+    if(Math.abs(v.x) < Number.EPSILON && Math.abs(v.y) < Number.EPSILON) {
+      return new Core.Math.Vector2(0, 1);
+    }
+    return new Core.Math.Vector2(-v.y, v.x);
+  }
+  static lerp(a: Core.Types.Math.Vector2Like, b: Core.Types.Math.Vector2Like, t: number): Core.Math.Vector2 {
+    return new Core.Math.Vector2(a).lerp(new Core.Math.Vector2(b), t);
   }
 }
 
@@ -46,38 +53,44 @@ export class CollisionUtil {
     return t2;
   }
 
-  static getIntersectionTimeMove(l: Core.Curves.Line, moveVector: Core.Math.Vector2, position: Core.Math.Vector2): number {
+  static getIntersectionTimeMove(l: Core.Curves.Line, p: Core.Math.Vector2, mv: Core.Math.Vector2): number {
     const l0 = new Core.Curves.Line(l.p0, l.p1);
-    const l1 = new Core.Curves.Line(position, Vector2Util.add(position, moveVector));
+    const l1 = new Core.Curves.Line(p, Vector2Util.add(p, mv));
     return CollisionUtil.getIntersectionTime(l0, l1);
   }
+  
 
-  // 円と線分の距離を取得(半径以内なら当たっている)
-  static getIntersectionTimeCircle(l: Core.Curves.Line, radius: number, mv: Core.Types.Math.Vector2Like, p: Core.Types.Math.Vector2Like) {
-    let move = new Core.Math.Vector2(mv);
-    let pos = new Core.Math.Vector2(p);
-
-    const a = new Core.Math.Vector2(l.p0);
-    const b = new Core.Math.Vector2(l.p1);
-    const c = new Core.Math.Vector2(pos.x + move.x, pos.y + move.y);
+  // 円と直線の距離を取得(半径以内なら当たっている)
+  static getIntersectionCircleLine(tangent: Core.Types.Math.Vector2Like, lPos: Core.Types.Math.Vector2Like, radius: number, p: Core.Types.Math.Vector2Like, mv: Core.Types.Math.Vector2Like) {
+    const a = new Core.Math.Vector2(lPos);
+    const b = Vector2Util.add(a, new Core.Math.Vector2(tangent));
+    const c = Vector2Util.add(p, mv);
     const ac = Vector2Util.sub(c, a);
-    const bc = Vector2Util.sub(c, b);
     const ab = Vector2Util.sub(b, a);
 
     const cross = Vector2Util.cross2d(ab, ac);
     const d = cross / ab.length();
-    if (Math.abs(d) > radius) {
-      return Number.MAX_VALUE;
-    }
+    return d;
+  }
+
+  // 円と線分の距離を取得(半径以内なら当たっている)
+  static getIntersectionCircle(l: Core.Curves.Line, radius: number, p: Core.Types.Math.Vector2Like, mv: Core.Types.Math.Vector2Like) {
+    const a = new Core.Math.Vector2(l.p0);
+    const b = new Core.Math.Vector2(l.p1);
+    const c = Vector2Util.add(p, mv);
+    const ac = Vector2Util.sub(c, a);
+    const bc = Vector2Util.sub(c, b);
+    const ab = Vector2Util.sub(b, a);
 
     //スペシャルケース
     if (ac.dot(ab) * bc.dot(ab) > 0) {
-      if (radius > ac.length() || radius > bc.length()) {
-        return ac.length() < bc.length() ? ac.length() : bc.length();
-      }
-      return Number.MAX_VALUE;
+      const lac = ac.length();
+      const lbc = bc.length();
+      return lac < lbc ? lac : lbc;
     }
 
+    const cross = Vector2Util.cross2d(ab, ac);
+    const d = cross / ab.length();
     return d;
   }
 
@@ -90,13 +103,10 @@ export class CollisionUtil {
     return true;
   }
 
-  static isIntersectCircle(l: Core.Curves.Line, radius: number, mv: Core.Types.Math.Vector2Like, p: Core.Types.Math.Vector2Like) {
-    let move = new Core.Math.Vector2(mv);
-    let pos = new Core.Math.Vector2(p);
-
+  static isIntersectCircle(l: Core.Curves.Line, radius: number, p: Core.Types.Math.Vector2Like, mv: Core.Types.Math.Vector2Like) {
     const a = new Core.Math.Vector2(l.p0);
     const b = new Core.Math.Vector2(l.p1);
-    const c = new Core.Math.Vector2(pos.x + move.x, pos.y + move.y);
+    const c = Vector2Util.add(p, mv);
     const ac = Vector2Util.sub(c, a);
     const bc = Vector2Util.sub(c, b);
     const ab = Vector2Util.sub(b, a);
@@ -122,7 +132,7 @@ export class CollisionUtil {
   static restrictMove(l: Core.Curves.Line, v: Core.Types.Math.Vector2Like, p: Core.Types.Math.Vector2Like): Core.Math.Vector2 {
     const move = new Core.Math.Vector2(v);
     const pos = new Core.Math.Vector2(p);
-    const t = CollisionUtil.getIntersectionTimeMove(l, move, pos);
+    const t = CollisionUtil.getIntersectionTimeMove(l, pos, move);
 
     if (t < 0.0 || 1.0 < t) {
       return move;
@@ -141,11 +151,11 @@ export class CollisionUtil {
   }
 
   // 円を壁に沿わせる
-  static restrictMoveCircle(l: Core.Curves.Line, radius: number, mv: Core.Types.Math.Vector2Like, p: Core.Types.Math.Vector2Like) {
+  static restrictMoveCircle(l: Core.Curves.Line, radius: number, p: Core.Types.Math.Vector2Like, mv: Core.Types.Math.Vector2Like) {
     let vCopy = new Core.Math.Vector2(mv);
     let move = new Core.Math.Vector2(mv);
     let pos = new Core.Math.Vector2(p);
-    const t = CollisionUtil.getIntersectionTimeCircle(l, radius, move, pos);
+    const t = CollisionUtil.getIntersectionCircle(l, radius, pos, move);
 
     if (Math.abs(t) > radius) {
       return move;
@@ -160,7 +170,7 @@ export class CollisionUtil {
     // b垂線、a水平方向
     const a = new Core.Math.Vector2(l.p0);
     const b = new Core.Math.Vector2(l.p1);
-    const c = new Core.Math.Vector2(pos.x + move.x, pos.y + move.y);
+    const c = Vector2Util.add(pos, move);
     const ac = Vector2Util.sub(c, a);
     const bc = Vector2Util.sub(c, b);
     const ab = Vector2Util.sub(b, a);
@@ -201,7 +211,7 @@ export class CollisionUtil {
     let t = Number.MAX_VALUE;
     let minI = -1;
     platforms.forEach((e, i) => {
-      const tt = CollisionUtil.getIntersectionTimeMove(e, move, pos);
+      const tt = CollisionUtil.getIntersectionTimeMove(e, pos, move);
       if (tt < t) {
         t = tt;
         minI = i;
@@ -209,36 +219,37 @@ export class CollisionUtil {
     });
     // 当たった
     if (t >= 0 && t <= 1) {
-      return CollisionUtil.restrictMove(platforms[minI], move, pos);
+      return CollisionUtil.restrictMove(platforms[minI], pos, move);
     }
 
     return move;
   }
 
   // 円を壁に沿わせる
-  static restrictMoveCirclePlatform(platforms: Core.Curves.Line[], radius: number, v: Core.Types.Math.Vector2Like, p: Core.Types.Math.Vector2Like) {
+  static restrictMoveCirclePlatform(platforms: Core.Curves.Line[], radius: number, p: Core.Types.Math.Vector2Like, v: Core.Types.Math.Vector2Like) {
     let move = new Core.Math.Vector2(v);
+    let pos = new Core.Math.Vector2(p);
     let hit = false;
 
     let t = Number.MAX_VALUE;
     let minI = -1;
     platforms.forEach((e, i) => {
-      const tt = CollisionUtil.getIntersectionTimeCircle(e, radius, move, p);
-      if (tt < t) {
+      const tt = CollisionUtil.getIntersectionCircle(e, radius, pos, move);
+      if (Math.abs(tt) < t) {
         t = tt;
         minI = i;
       }
     })
     // 当たった
-    if (t <= radius) {
-      move = CollisionUtil.restrictMoveCircle(platforms[minI], radius, move, p);
+    if (Math.abs(t) <= radius) {
+      move = CollisionUtil.restrictMoveCircle(platforms[minI], radius, pos, move);
     }
 
     // 第三ループ　当たっていたら止める
     t = Number.MAX_VALUE;
     minI = -1;
     platforms.forEach((e, i) => {
-      if (CollisionUtil.isIntersectCircle(e, radius, move, p)) {
+      if (CollisionUtil.isIntersectCircle(e, radius, pos, move)) {
         move.set(0, 0);
         return true;
       }

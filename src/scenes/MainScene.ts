@@ -6,7 +6,6 @@ import * as ecs from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
 import { PositionComponent } from '../components/PositionComponent';
 import { SpriteComponent } from '../components/SpriteComponent';
-import { PointerComponent } from '../components/PointerComponent';
 import { EnemyComponent } from '../components/EnemyComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
 import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
@@ -16,7 +15,6 @@ import { DirectionComponent } from '../components/DirectionComponent';
 import { BulletComponent, BulletType } from '../components/BulletComponent';
 import { MoveSystem } from '../systems/MoveSystem';
 import { RenderSystem } from '../systems/RenderSystem';
-import { PointerSystem } from '../systems/PointerSystem';
 import { LevelSystem } from '../systems/LevelSystem';
 import { EnemySystem } from '../systems/EnemySystem';
 import { PlayerSystem } from '../systems/PlayerSystem';
@@ -34,8 +32,7 @@ import { GeneratorComponent } from '../components/GeneratorComponent';
 import { GeneratorSystem } from '../systems/GeneratorSystem';
 import { LambdaComponent } from '../components/LambdaComponent';
 import { LambdaSystem } from '../systems/LambdaSystem';
-import { Entity } from '../libs/ecs/Entity';
-import TextureList from './TextureList';
+import TextureList, { toTexParams } from './TextureList';
 import { DebugDraw } from './DebugDraw';
 import { View } from '../libs/view/View';
 import { ParticleComponent } from '../components/ParticleComponent';
@@ -43,9 +40,17 @@ import { ParticleSystem } from '../systems/ParticleSystem';
 import * as Package1 from '../exportedUI/Package1/Package1Binder';
 import InputManager from '../input/InputManager';
 import { Key } from 'ts-key-enum';
+import { GraphNodeComponent } from '../components/GraphComponent';
+import TextureLists from './TextureList';
 
 const key = InputManager.Instance.keyboard;
 const pointer = InputManager.Instance.pointer;
+
+export const Layer = {
+  Background_0: 0,
+  Background_1: 1,
+  Entity: 2,
+}
 
 class Line extends PIXI.Graphics {
   lineWidth: number;
@@ -71,13 +76,11 @@ class Line extends PIXI.Graphics {
 
 
 export interface GameContext {
+  app: PIXI.Application;
+  loader: PIXI.Loader;
   view: View;
-  score: number,
-  createPlayer: (world: ecs.World) => ecs.Entity;
-  createEnemy: (world: ecs.World, pos: Core.Types.Math.Vector2Like, dir: Core.Types.Math.Vector2Like) => ecs.Entity;
-  createBullet: (world: ecs.World, pos: Core.Types.Math.Vector2Like, dir: Core.Types.Math.Vector2Like, type: BulletType) => ecs.Entity;
-  createPlatform: (world: ecs.World, pos: Core.Math.Vector2, lines: Core.Curves.Line[]) => ecs.Entity;
-  // pointer: Pointer
+  score: number;
+  createBullet: (pos: Core.Types.Math.Vector2Like, dir: Core.Types.Math.Vector2Like, speed: number, type: BulletType) => ecs.Entity;
 }
 
 /**
@@ -95,135 +98,115 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
   ui?: Package1.Package1Binder;
   uiMain?: Package1.UI_Main;
   context: GameContext = {
+    app: this.app,
+    loader: this.loader,
     view: this.view,
     score: 0,
-    createPlayer: (world: ecs.World) => {
-      let entity = world.createEntity();
-      let pos = entity.addComponent(PositionComponent);
-      entity.addComponent(PlayerComponent);
-      entity.addComponent(MassComponent);
-      entity.addComponent(MoveComponent);
-      // entity.addComponent(PointerComponent, scene);
-      const sprite = entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Entity.key].texture, 0, 0);
-      entity.addComponent(PhysicsBodyComponent, 15);
-      entity.addComponent(CollideableComponent, new Circle(15));
-      entity.addComponent(CommonInfoComponent, false);
-      const particle = entity.addComponent(ParticleComponent,
-        this.view.container,
-        [this.loader.resources[TextureList.Entity.key].texture],
-        {
-          alpha: {
-            list: [
-              { value: 0.5, time: 0 },
-              { value: 0.0, time: 1 }
-            ],
-            isStepped: false
-          },
-          scale: {
-            list: [
-              { value: 1, time: 0 },
-              { value: 0.9, time: 1 }
-            ],
-            isStepped: false
-          },
-          speed: {
-            list: [
-              { value: 0, time: 0 },
-              // { value: 100, time: 1 }
-            ],
-            isStepped: false
-          },
-          // startRotation: { min: 0, max: 360 },
-          // rotationSpeed: { min: 0, max: 0 },
-          lifetime: { min: 0.05, max: 0.05 },
-          frequency: 0.005,
-          spawnChance: 1,
-          particlesPerWave: 1,
-          // emitterLifetime: 0.1,
-          maxParticles: 100,
-          pos: { x: 0, y: 0 },
-          addAtBack: false,
-          spawnType: "point",
-          emit: true
-        },
-        (delta) => {
-          particle.emitter.spawnPos.x = pos.x;
-          particle.emitter.spawnPos.y = pos.y;
-          particle.emitter.update(delta);
-        });
-
-      pos.x = 0;
-      pos.y = 0;
-
-
-      return entity;
-    },
-    createEnemy: (world: ecs.World, pos: Core.Math.Vector2, dir: Core.Math.Vector2) => {
-      let entity = world.createEntity();
-      let emov = entity.addComponent(MoveComponent);
-      let epos = entity.addComponent(PositionComponent);
-      let bdir = entity.addComponent(DirectionComponent);
-      entity.addComponent(EnemyComponent);
-      entity.addComponent(CollideableComponent, new Circle(15));
-      entity.addComponent(CommonInfoComponent);
-      entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Entity.key].texture, pos.x, pos.y, 0xFF2222);
-      entity.addComponent(GeneratorComponent, function* () {
-        // 移動
-        while (true) {
-          let mv = emov.getMove("move");
-          mv.x = dir.x * 10;
-          mv.y = dir.y * 10;
-          yield;
-        }
-      });
-
-      epos.x = pos.x;
-      epos.y = pos.y;
-      bdir.x = dir.x;
-      bdir.y = dir.y;
-
-      return entity;
-    },
-    createBullet: (world: ecs.World, pos: Core.Math.Vector2, dir: Core.Math.Vector2, type: BulletType) => {
-      let entity = world.createEntity();
-      let bpos = entity.addComponent(PositionComponent);
-      let bmov = entity.addComponent(MoveComponent);
-      let bdir = entity.addComponent(DirectionComponent);
+    createBullet: (pos: Core.Math.Vector2, dir: Core.Math.Vector2, speed: number, type: BulletType) => {
+      let entity = this.world.createEntity();
+      let cpos = entity.addComponent(PositionComponent);
+      let cmov = entity.addComponent(MoveComponent);
+      let cdir = entity.addComponent(DirectionComponent);
       entity.addComponent(BulletComponent, type);
       entity.addComponent(CollideableComponent, new Box(10, 30));
-      entity.addComponent(SpriteComponent, this.view.container, this.loader.resources[TextureList.Bullet.key].texture, pos.x, pos.y);
+      let cnode = entity.addComponent(GraphNodeComponent, this.view.container, pos.x, pos.y, Layer.Entity);
+      entity.addComponent(SpriteComponent, cnode.node, this.loader.resources[TextureList.Bullet.key].texture);
       entity.addComponent(CommonInfoComponent);
       entity.addComponent(LambdaComponent, (dt, context) => {
-        let mv = bmov.getMove("move");
-        mv.x = dir.x * 10;
-        mv.y = dir.y * 10;
+        let mv = cmov.getMove("move");
+        mv.x = cdir.x * speed;
+        mv.y = cdir.y * speed;
       });
 
-      bpos.x = pos.x;
-      bpos.y = pos.y;
-      bdir.x = dir.x;
-      bdir.y = dir.y;
+      cpos.x = pos.x;
+      cpos.y = pos.y;
+      cdir.x = dir.x;
+      cdir.y = dir.y;
 
       return entity;
     },
-    createPlatform: (world: ecs.World, pos: Core.Math.Vector2, lines: Core.Curves.Line[]) => {
-      let entity = world.createEntity();
-      let epos = entity.addComponent(PositionComponent);
-      let platform = entity.addComponent(MoveRestrictComponent);
-      entity.addComponent(CommonInfoComponent, false);
-
-      // 仮描画
-      lines.forEach(l => {
-        const graph = new Line(l.p0, l.p1, 1, 0xffffff);
-        this.view.container.addChild(graph);
+  };
+  
+  createPlayer = () => {
+    let entity = this.world.createEntity();
+    let cpos = entity.addComponent(PositionComponent);
+    entity.addComponent(PlayerComponent);
+    entity.addComponent(MassComponent);
+    entity.addComponent(MoveComponent);
+    let cnode = entity.addComponent(GraphNodeComponent, this.view.container, cpos.x, cpos.y, Layer.Entity);
+    entity.addComponent(SpriteComponent, cnode.node, this.loader.resources[TextureLists.Entity.key].texture);
+    entity.addComponent(PhysicsBodyComponent, 15);
+    entity.addComponent(CollideableComponent, new Circle(15));
+    entity.addComponent(CommonInfoComponent, false);
+    const particle = entity.addComponent(ParticleComponent,
+      this.view.container,
+      [this.loader.resources[TextureLists.Entity.key].texture],
+      {
+        alpha: {
+          list: [
+            { value: 0.5, time: 0 },
+            { value: 0.0, time: 1 }
+          ],
+          isStepped: false
+        },
+        scale: {
+          list: [
+            { value: 1, time: 0 },
+            { value: 0.9, time: 1 }
+          ],
+          isStepped: false
+        },
+        speed: {
+          list: [
+            { value: 0, time: 0 },
+            // { value: 100, time: 1 }
+          ],
+          isStepped: false
+        },
+        // startRotation: { min: 0, max: 360 },
+        // rotationSpeed: { min: 0, max: 0 },
+        lifetime: { min: 0.05, max: 0.05 },
+        frequency: 0.005,
+        spawnChance: 1,
+        particlesPerWave: 1,
+        // emitterLifetime: 0.1,
+        maxParticles: 100,
+        pos: { x: 0, y: 0 },
+        addAtBack: false,
+        spawnType: "point",
+        emit: true
+      },
+      (delta) => {
+        particle.emitter.spawnPos.x = cpos.x;
+        particle.emitter.spawnPos.y = cpos.y;
+        particle.emitter.update(delta);
       });
 
-      epos.x = pos.x;
-      epos.y = pos.y;
-      platform.lines = lines;
 
-      return entity;
-    },
+    cpos.x = 0;
+    cpos.y = 0;
+
+    return entity;
+  };
+  
+  createPlatform = (pos: Core.Math.Vector2, lines: Core.Curves.Line[]) => {
+    let entity = this.world.createEntity();
+    let cpos = entity.addComponent(PositionComponent);
+    let cplatform = entity.addComponent(MoveRestrictComponent);
+    entity.addComponent(CommonInfoComponent, false);
+
+    // 仮描画
+    const lineGraph = lines.map(l => {
+      const graph = new Line(l.p0, l.p1, 1, 0xffffff);
+      this.view.container.addChild(graph);
+      return graph;
+    });
+
+    cpos.x = pos.x;
+    cpos.y = pos.y;
+    cplatform.lines = lines;
+
+    return entity;
   };
 
   constructor(app: PIXI.Application) {
@@ -250,8 +233,8 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
     this.enterFunc.Load = () => {
 
       this.loader
-        .add(TextureList.Entity.key, TextureList.Entity.path)
-        .add(TextureList.Bullet.key, TextureList.Bullet.path)
+        .add(...toTexParams(TextureList.Entity))
+        .add(...toTexParams(TextureList.Bullet))
         .add("Package1@atlas0.png", "assets/UI/Package1@atlas0.png")
         .add("Package1.fui", "assets/UI/Package1.fui", { xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER })
         .load((loader, resources) => {
@@ -284,7 +267,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       this.world.addSystem(new ParticleSystem);
       this.world.addSystem(new RenderSystem(this.context.view));
 
-      this.context.createPlatform(this.world, new Core.Math.Vector2(), [
+      this.createPlatform(new Core.Math.Vector2(), [
         new Core.Curves.Line([220, 230, -200, 150]),
         new Core.Curves.Line([320, -130, -200, -150]),
       ]);
@@ -296,7 +279,7 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       if(this.world.getEntities([PlayerComponent]).length === 0 &&
         (pointer.data.justUp || key.isTriggered(" "))){
         this.context.score = 0;
-        this.context.createPlayer(this.world);
+        this.createPlayer();
         this.nextState = MainScene.State.Main;
       }
     }

@@ -7,6 +7,10 @@ const DIRMODE = {
   '8dir': 3
 };
 
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+const offsetX = function(x: number) { return (x - (canvas.offsetLeft - canvas.clientWidth/2)) * (canvas.width / canvas.clientWidth); }
+const offsetY = function(y: number){ return (y - (canvas.offsetTop - canvas.clientHeight/2)) * (canvas.height / canvas.clientHeight); }
+
 const angleToDirections = function (angle: number, dirMode: number) {
   let out = {
     left: false,
@@ -159,10 +163,10 @@ export class Pointer {
       this.data.dragged = false;
       this.data.swiped = false;
       this.data.lastswipe = { left: false, right: false, up: false, down: false };
-      this.data.downPosition.x = ev.x;
-      this.data.downPosition.y = ev.y;
-      this.data.position.x = ev.x;
-      this.data.position.y = ev.y;
+      this.data.downPosition.x = offsetX(ev.x);
+      this.data.downPosition.y = offsetY(ev.y);
+      this.data.position.x = offsetX(ev.x);
+      this.data.position.y = offsetY(ev.y);
       this.data.prevPosition.x = this.data.position.x;
       this.data.prevPosition.y = this.data.position.y;
     });
@@ -175,8 +179,8 @@ export class Pointer {
       this.data.downPosition.y = 0;
     });
     window.addEventListener('pointermove', (ev) => {
-      this.data.position.x = ev.x;
-      this.data.position.y = ev.y;
+      this.data.position.x = offsetX(ev.x);
+      this.data.position.y = offsetY(ev.y);
       if (this.data.down) {
         this.data.dragged = this.data.dragged || (ev.x !== this.data.downPosition.x) || (ev.y !== this.data.downPosition.y);
         if (this.data.dragged &&

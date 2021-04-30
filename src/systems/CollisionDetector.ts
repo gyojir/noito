@@ -90,6 +90,6 @@ export class CollisionDetector {
   }
   
   static isCollide(left: Candidate,right: Candidate) {
-    return left.coll.shape.hit(left.pos, left.angle, right.coll.shape, right.pos, right.angle);
+    return left.coll.shape.hit(right.coll.shape, {aPos: left.pos, aAngle: left.angle, bPos: right.pos, bAngle: right.angle});
   }
 }

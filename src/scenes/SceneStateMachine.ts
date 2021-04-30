@@ -4,6 +4,7 @@ import { StateMachine, StateType, StateMachineBase } from '../libs/core/StateMac
 import { beginImGui, endImGui, clearImGui } from '../libs/util/util';
 import InputManager from '../input/InputManager';
 import { View } from '../libs/view/View';
+import { DebugDraw } from './DebugDraw';
 
 export type StateMachineConfig = {
   getMachine: () => StateMachineBase | undefined;
@@ -37,6 +38,10 @@ export abstract class SceneStateMachine<T extends StateType> extends StateMachin
   onDestroyOverride() {
   }
 
+  readonly onPreUpdate = () => {
+    DebugDraw.Instance.clear();
+  }
+
   readonly onUpdateCalled = () => {
     this.onUpdateCalledOverride();
 
@@ -55,6 +60,7 @@ export abstract class SceneStateMachine<T extends StateType> extends StateMachin
       if(key.isTriggered("d")){
         this.enableDebug = !this.enableDebug;
         clearImGui();
+        DebugDraw.Instance.setVisible(this.enableDebug);
       }
       if(this.enableDebug){
         beginImGui(time);

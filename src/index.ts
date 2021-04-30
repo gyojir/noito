@@ -23,28 +23,30 @@ document.addEventListener("touchend", e=>e.preventDefault(), {passive: false});
 window.onload = async ()=>{
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-  const debugCanvas = document.createElement("canvas");
-  debugCanvas.width = window.innerWidth;
-  debugCanvas.height = window.innerHeight;
-  debugCanvas.style.position = "absolute";
-  debugCanvas.style.width = "100%";
-  debugCanvas.style.height = "100%";
-  // 重なり部分のイベント
-  [
-    'pointerdown',
-    'pointerover',
-    'pointerup',
-    'pointermove',
-    'pointerout',
-    'pointerupoutside',
-    'touchcancel',
-    'touchend',
-    'touchendoutside',
-    'touchmove',
-    'touchstart',
-  ].forEach(e=> debugCanvas.addEventListener(e,  (ev:any) => canvas.dispatchEvent(new ev.constructor(ev.type, ev))));
-  document.body.appendChild(debugCanvas);
-  await initImGui(debugCanvas);
+  if(process.env.NODE_ENV === "development") {
+    const debugCanvas = document.createElement("canvas");
+    debugCanvas.width = window.innerWidth;
+    debugCanvas.height = window.innerHeight;
+    debugCanvas.style.position = "absolute";
+    debugCanvas.style.width = "100%";
+    debugCanvas.style.height = "100%";
+    // 重なり部分のイベント
+    [
+      'pointerdown',
+      'pointerover',
+      'pointerup',
+      'pointermove',
+      'pointerout',
+      'pointerupoutside',
+      'touchcancel',
+      'touchend',
+      'touchendoutside',
+      'touchmove',
+      'touchstart',
+    ].forEach(e=> debugCanvas.addEventListener(e,  (ev:any) => canvas.dispatchEvent(new ev.constructor(ev.type, ev))));
+    document.body.appendChild(debugCanvas);
+    await initImGui(debugCanvas);
+  }
 
   // pixi setting
   PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;

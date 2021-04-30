@@ -1,13 +1,13 @@
 import * as mugen from 'mu-gen';
 import { System } from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
-import { GameContext } from '../scenes/MainScene';
+import { GameContext, Layer } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { PlayerComponent } from '../components/PlayerComponent';
 import { CollideableComponent } from '../components/CollideableComponent';
 import { EnemyComponent } from '../components/EnemyComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
-import { BulletType } from '../components/BulletComponent';
+import { BulletType, BulletComponent } from '../components/BulletComponent';
 import { MoveComponent } from '../components/MoveComponent';
 import { clamp } from '../libs/util/util';
 import InputManager from '../input/InputManager';
@@ -26,12 +26,14 @@ export class PlayerSystem extends System<GameContext> {
 
     this.forEach(e=>{
       count++;
+      const pl = e.getComponent(PlayerComponent);
       const pos = e.getComponent(PositionComponent);
       const coll = e.getComponent(CollideableComponent);
       const info = e.getComponent(CommonInfoComponent);
       const move = e.getComponent(MoveComponent);
 
       if(this.world === undefined ||
+         pl === undefined ||
          pos === undefined ||
          coll === undefined ||
          info === undefined ||
@@ -66,22 +68,24 @@ export class PlayerSystem extends System<GameContext> {
         gravityMove.y = -15;
       }
 
-      mv.x = clamp(mv.x, 20, -20);
+      mv.x = clamp(mv.x, -20, 20);
 
       // コリジョン取得
       for(let opposite of coll.hitList){
         const enemy = opposite.getComponent(EnemyComponent);
-        if(enemy !== undefined){
+        const bullet = opposite.getComponent(BulletComponent);
+        if(enemy !== undefined || bullet?.type == BulletType.Enemy){
           info.active = false; // 死亡
           mugen.playSE(mugen.Presets.Explosion);
           return;
         }
       }
 
-      // 1000msなら必ずtrue つまり大体1sにx体
-      if(Math.random() < dt * 0.001 * 10){
-        const dir = new Core.Math.Vector2(Math.random() - 0.5, Math.random() - 0.5).normalize();
-        context.createBullet(this.world, pos, dir, BulletType.Player);
+      if(context.app.ticker.lastTime - pl.lastShotTime > 100 &&  key.isDown(' ')){
+        pl.lastShotTime = context.app.ticker.lastTime;
+        const dir = new Core.Math.Vector2(0,-1);
+        const bpos = new Core.Math.Vector2(pos).add(new Core.Math.Vector2(0,-50));
+        context.createBullet(bpos, dir, 10, BulletType.Player);
       }
     })
   }

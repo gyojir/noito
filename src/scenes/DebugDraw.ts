@@ -1,12 +1,13 @@
 import * as PIXI from 'pixi.js'
 import * as Core from '../libs/core/core';
-import { Polygon, Circle, Box, Shape, ShapeBase } from '../libs/util/Shape';
+import { ShapeBase } from '../libs/util/Shape';
 import { View } from '../libs/view/View';
+import { GraphicsUtil } from '../libs/util/GraphicsUtil';
 
 export class DebugDraw {
   private static _instance?: DebugDraw;
-  defaultGraphics: PIXI.Graphics;
-  viewGraphicsMap: Map<View, PIXI.Graphics>;
+  private defaultGraphics: PIXI.Graphics;
+  private viewGraphicsMap: Map<View, PIXI.Graphics>;
   private constructor(){
     this.defaultGraphics = new PIXI.Graphics();
     this.defaultGraphics.zIndex = 10000;
@@ -19,16 +20,38 @@ export class DebugDraw {
       return this._instance || (this._instance = new this());
   }
 
-  clear(){
-    this.viewGraphicsMap.forEach((graphics)=>{
-      graphics.clear();
-      graphics.lineStyle(1, 0xff0000);
-    })
-    this.defaultGraphics.clear();
-    this.defaultGraphics.lineStyle(1, 0xff0000);
+  setVisible(visible: boolean) {
+    if(process.env.NODE_ENV !== "development") {
+      return;
+    }
+
+    this.viewGraphicsMap.forEach(graphics => GraphicsUtil.setVisible(graphics, visible));
+    GraphicsUtil.setVisible(this.defaultGraphics, visible);
   }
 
-  drawShape(shape: ShapeBase, pos: Core.Types.Math.Vector2Like, angle: number, view?: View): void {
+  clear() {
+    if(process.env.NODE_ENV !== "development") {
+      return;
+    }
+
+    this.viewGraphicsMap.forEach(GraphicsUtil.clear);
+    GraphicsUtil.clear(this.defaultGraphics);
+  }
+
+  setColor(color: number, fill: boolean) {
+    if(process.env.NODE_ENV !== "development") {
+      return;
+    }
+
+    this.viewGraphicsMap.forEach(graphics => GraphicsUtil.setColor(graphics, color, fill));
+    GraphicsUtil.setColor(this.defaultGraphics, color, fill);
+  }
+
+  drawShape(shape: ShapeBase, pos: Core.Types.Math.Vector2Like, angle: number, view?: View, color: number = 0xffffffff, fill: boolean = false): void {
+    if(process.env.NODE_ENV !== "development") {
+      return;
+    }
+
     // Viewが指定されていれば専用Graphicsに書き込む
     let graphics: PIXI.Graphics;
     if(view !== undefined){
@@ -43,22 +66,6 @@ export class DebugDraw {
       graphics = this.defaultGraphics;
     }
 
-    if(shape instanceof Circle){
-      this.drawCircle(shape, pos, graphics);
-    }else if(shape instanceof Box){
-      this.drawBox(shape, pos, angle, graphics);
-    }else if(shape instanceof Polygon){
-      this.drawPolygon(shape, pos, angle, graphics);
-    }
-  }
-  
-  drawCircle(shape: Circle, pos: Core.Types.Math.Vector2Like, graphics: PIXI.Graphics = this.defaultGraphics){
-    graphics.drawCircle(pos?.x || 0, pos?.y || 0, shape.radius);
-  }
-  drawBox(shape: Box, pos: Core.Types.Math.Vector2Like, angle: number, graphics: PIXI.Graphics = this.defaultGraphics){
-    graphics.drawPolygon(shape.getPolygon(angle).points.map(p => new PIXI.Point((pos.x || 0) + (p.x || 0),(pos.y || 0) + (p.y || 0))));
-  }
-  drawPolygon(shape: Polygon, pos: Core.Types.Math.Vector2Like, angle: number, graphics: PIXI.Graphics = this.defaultGraphics){
-    graphics.drawPolygon(shape.points.map(p => new PIXI.Point((pos.x || 0) + (p.x || 0),(pos.y || 0) + (p.y || 0))));
+    GraphicsUtil.drawShape(graphics, shape, pos, angle, color, fill);
   }
 }

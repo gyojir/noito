@@ -50,7 +50,7 @@ export class PhysicsSystem extends System<GameContext> {
       restrictMove.y = 0;
       
       let total = new Core.Math.Vector2(move.totalMove());
-      const v = CollisionUtil.restrictMoveCirclePlatform(platforms, coll?.radius || 1, total, pos);
+      const v = CollisionUtil.restrictMoveCirclePlatform(platforms, coll?.radius || 1, pos, total);
       let restriction = v.clone().subtract(total); // 戻しベクトル
       
       // ぶつかってたら重力消す

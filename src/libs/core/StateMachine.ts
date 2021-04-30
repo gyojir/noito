@@ -15,6 +15,7 @@ export abstract class StateMachineBase {
   abstract leaveState(): void;
   
   // オーバーライドする用
+  onPreUpdate(): void {}
   onUpdateCalled(): void {}
 
   debugDraw(): void {}
@@ -113,6 +114,7 @@ export abstract class StateMachine<State extends StateType> extends StateMachine
   //--------------------------------------------------
 
   update(): void {
+    this.onPreUpdate();
     this.updateState();
     this.onUpdateCalled();
   }

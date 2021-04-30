@@ -52,7 +52,6 @@ class AppRoot extends SceneStateMachine<typeof AppRoot.State>{
   }
 
   onUpdateCalledOverride(){
-    DebugDraw.Instance.clear();
     this.entryDebugDraw(this.app.ticker.lastTime);
   }
 }

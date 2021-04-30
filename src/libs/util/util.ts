@@ -12,9 +12,14 @@ export type ClassType<T> = {new(...args: ConstructorArgs<T>): InstanceOf<T>};
 
 export type PickType<T, K extends keyof T> = T[K];
 
+export type ValueOf<T> = T[keyof T];
+
 export const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
 
-export function selectRand<T>(array: T[]): T{
+export function selectRand<T>(array: T[]): T;
+export function selectRand<T>(obj: {[x: string]: T}): T;
+export function selectRand<T>(container: T[] | {[x: string]: T}): T{
+  const array = Array.isArray(container)? container : Object.values(container);
   return array[Math.floor(Math.random() * array.length)];
 }
 
@@ -32,11 +37,21 @@ export const range = (num: number) => [...Array(num).keys()];
 
 export const zip = <T,U>(arr1: T[], arr2: U[]): [T,U][] => arr1.map((k, i) => [k, arr2[i]]);
 
-export const clamp = (a: number, max: number, min: number) => Math.min(Math.max(a, min), max);
+export const clamp = (a: number, min: number, max: number) => Math.min(Math.max(a, min), max);
 
 export const getAngle = (v?: Core.Types.Math.Vector2Like) => new Core.Math.Vector2(v).angle() + Core.Math.TAU;
 
-export const randf = (min: number, max: number) => Math.random() * (max-min) + min;
+export function randf(max: number): number;
+export function randf(min: number, max: number): number;
+export function randf(a: number, b?: number) {
+  const min = b !== undefined ? a : 0;
+  const max = b !== undefined ? b : a;
+  return Math.random() * (max-min) + min;
+}
+
+// 1秒あたりおよそperSec回trueを返す
+// (dt >= 1000msなら必ずtrue つまり大体1sにx体)
+export const randt = (dt:number, perSec: number) => Math.random() * 10000 < dt * 0.001 * perSec * 10000;
 
 // 回転の絶対値を 0~π に抑える
 export const rotWrap = (rot: number) => {
