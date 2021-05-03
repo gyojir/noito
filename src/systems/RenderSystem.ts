@@ -6,11 +6,12 @@ import { GraphNodeComponent } from '../components/GraphComponent';
 import { DirectionComponent } from '../components/DirectionComponent';
 import { getAngle } from '../libs/util/util';
 import { View } from '../libs/view/View';
+import { World } from '../libs/ecs/World';
 
 export class RenderSystem extends System<GameContext> {
   view: View;
-  constructor(view: View){
-    super([GraphNodeComponent,PositionComponent]);
+  constructor(world: World, view: View){
+    super(world, [GraphNodeComponent,PositionComponent]);
     this.view = view;
   }
 

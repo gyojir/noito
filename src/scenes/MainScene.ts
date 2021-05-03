@@ -253,19 +253,18 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
       app.stage.addChild(this.uiMain.component);
 
       // System登録
-      // this.world.addSystem(new PointerSystem);
-      this.world.addSystem(new LevelSystem);
-      this.world.addSystem(new GeneratorSystem);
-      this.world.addSystem(new LambdaSystem);
-      this.world.addSystem(new EnemySystem);
-      this.world.addSystem(new PlayerSystem);
-      this.world.addSystem(new DestroySystem);
-      this.world.addSystem(new CollisionSystem);
-      this.world.addSystem(new BulletSystem);
-      this.world.addSystem(new PhysicsSystem);
-      this.world.addSystem(new MoveSystem);
-      this.world.addSystem(new ParticleSystem);
-      this.world.addSystem(new RenderSystem(this.context.view));
+      this.world.addSystem(LevelSystem);
+      this.world.addSystem(GeneratorSystem);
+      this.world.addSystem(LambdaSystem);
+      this.world.addSystem(EnemySystem);
+      this.world.addSystem(PlayerSystem);
+      this.world.addSystem(DestroySystem);
+      this.world.addSystem(CollisionSystem);
+      this.world.addSystem(BulletSystem);
+      this.world.addSystem(PhysicsSystem);
+      this.world.addSystem(MoveSystem);
+      this.world.addSystem(ParticleSystem);
+      this.world.addSystem(RenderSystem, this.context.view);
 
       this.createPlatform(new Core.Math.Vector2(), [
         new Core.Curves.Line([220, 230, -200, 150]),

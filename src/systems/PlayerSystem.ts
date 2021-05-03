@@ -1,5 +1,5 @@
 import * as mugen from 'mu-gen';
-import { System } from '../libs/ecs/ecs';
+import { System, World } from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
 import { GameContext, Layer } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
@@ -14,8 +14,8 @@ import InputManager from '../input/InputManager';
 import { Key } from 'ts-key-enum';
 
 export class PlayerSystem extends System<GameContext> {
-  constructor(){
-    super([PlayerComponent, CollideableComponent]);
+  constructor(world: World){
+    super(world, [PlayerComponent, CollideableComponent]);
   }
   
   update(dt: number, context: GameContext){

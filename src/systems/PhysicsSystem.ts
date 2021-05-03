@@ -8,12 +8,13 @@ import { MoveComponent } from '../components/MoveComponent';
 import { MassComponent } from '../components/MassComponent';
 import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
 import { MoveRestrictComponent } from '../components/MoveRestrictComponent';
+import { World } from '../libs/ecs/World';
 
 export class PhysicsSystem extends System<GameContext> {
   gravity: number;
   iteration: number;
-  constructor(gravity: number = -0.98, iteration: number = 1){
-    super([PositionComponent, MoveComponent, MassComponent, PhysicsBodyComponent]);
+  constructor(world: World, gravity: number = -0.98, iteration: number = 1){
+    super(world, [PositionComponent, MoveComponent, MassComponent, PhysicsBodyComponent]);
     this.gravity = gravity;
     this.iteration = iteration;
   }

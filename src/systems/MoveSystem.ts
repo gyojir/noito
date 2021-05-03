@@ -2,10 +2,11 @@ import { System } from '../libs/ecs/ecs';
 import { GameContext } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { MoveComponent } from '../components/MoveComponent';
+import { World } from '../libs/ecs/World';
 
 export class MoveSystem extends System<GameContext> {
-  constructor(){
-    super([PositionComponent, MoveComponent]);
+  constructor(world: World){
+    super(world, [PositionComponent, MoveComponent]);
   }
 
   update(dt: number, context: GameContext) {

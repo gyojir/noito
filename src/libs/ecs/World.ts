@@ -1,8 +1,7 @@
-import _ from 'lodash';
 import {System} from './System';
 import { Entity } from './Entity';
 import { Component } from './Component';
-import { ConstructorArgs, Constructor } from '../util/util';
+import { ConstructorArgs, Constructor, Offset1 } from '../util/util';
 import bitset from 'mnemonist/bit-set';
 import { assert } from '../core/core';
 
@@ -54,13 +53,16 @@ export class World {
 
   update<Context>(dt: number, context: Context){
     this.systems
-    .sort((a,b)=> a.priority - b.priority)
-    .forEach(e=>e.update(dt, context));
+    .sort((a,b)=> b.priority - a.priority)
+    .map(e=> (e.preUpdate(dt, context), e))
+    .map(e=> (e.update(dt, context), e))
+    .map(e=> (e.postUpdate(dt, context), e));
   }
 
-  addSystem(system: System<any>){
-    this.systems.push(system);
-    system.world = this;
+  addSystem<T extends System<any>,U>(component: Constructor<T> & U, ...args: Offset1<ConstructorArgs<U>>) {
+    let c = new component(this, ...args);
+    this.systems.push(c);
+    return c as T;
   }
 
   createEntity(): Entity {

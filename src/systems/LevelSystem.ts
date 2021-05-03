@@ -13,11 +13,12 @@ import { SpriteComponent } from '../components/SpriteComponent';
 import TextureLists from '../scenes/TextureList';
 import { GeneratorComponent } from '../components/GeneratorComponent';
 import { GraphNodeComponent } from '../components/GraphComponent';
+import { World } from '../libs/ecs/World';
 
 export class LevelSystem extends System<GameContext> {
   lastEnemyTime = 0;
-  constructor(){
-    super([]);
+  constructor(world: World){
+    super(world, []);
   }
 
   update(dt: number, context: GameContext){

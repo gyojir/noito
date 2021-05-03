@@ -3,15 +3,22 @@ import { World } from './World';
 import { Entity } from './Entity';
 
 export class System<Context> {
-  world: World | undefined;
+  world: World;
   priority: number;
   requirements: {family: number}[] = [];
-  constructor(requirements: {family: number}[], priority = 1) {
+  constructor(world: World, requirements: {family: number}[], priority = 1) {
     this.requirements = requirements;
     this.priority = priority;
+    this.world = world;
+  }
+  
+  preUpdate(dt: number, context: Context){
   }
 
   update(dt: number, context: Context){
+  }
+  
+  postUpdate(dt: number, context: Context){
   }
 
   getEntities(){

@@ -3,10 +3,11 @@ import { GameContext } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { PointerComponent } from '../components/PointerComponent';
 import { MoveComponent } from '../components/MoveComponent';
+import { World } from '../libs/ecs/World';
 
 export class PointerSystem extends System<GameContext>  {
-  constructor(){
-    super([PointerComponent,PositionComponent, MoveComponent]);
+  constructor(world: World){
+    super(world, [PointerComponent,PositionComponent, MoveComponent]);
   }
 
   update(dt: number, context: GameContext) {

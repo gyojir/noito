@@ -4,10 +4,11 @@ import { GameContext } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { CollisionDetector, Candidate } from './CollisionDetector';
 import { CollideableComponent } from '../components/CollideableComponent';
+import { World } from '../libs/ecs/World';
 
 export class CollisionSystem extends System<GameContext> {
-  constructor(){
-    super([PositionComponent, CollideableComponent]);
+  constructor(world: World){
+    super(world, [PositionComponent, CollideableComponent]);
   }
 
   update(dt: number, context: GameContext){

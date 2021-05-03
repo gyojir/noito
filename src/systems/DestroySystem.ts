@@ -3,10 +3,11 @@ import { GameContext } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
 import { MoveComponent } from '../components/MoveComponent';
+import { World } from '../libs/ecs/World';
 
 export class DestroySystem extends System<GameContext> {
-  constructor(){
-    super([]);
+  constructor(world: World){
+    super(world, []);
   }
 
   update(dt: number, context: GameContext) {

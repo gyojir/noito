@@ -10,8 +10,8 @@ import { MoveComponent } from '../components/MoveComponent';
 import { DirectionComponent } from '../components/DirectionComponent';
 
 export class BulletSystem extends System<GameContext> {
-  constructor(){
-    super([PositionComponent, BulletComponent, CollideableComponent, MoveComponent, DirectionComponent]);
+  constructor(world: World){
+    super(world, [PositionComponent, BulletComponent, CollideableComponent, MoveComponent, DirectionComponent]);
   }
 
   update(dt: number, context: GameContext) {

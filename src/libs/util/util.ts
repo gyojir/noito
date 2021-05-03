@@ -7,6 +7,7 @@ export type ArgumentTypes<F extends Function> = F extends (...args: infer A) => 
 
 export type Constructor<T> = {new(...args: any): T};
 export type ConstructorArgs<T> = T extends new (...args: infer U) => any ? U : never;
+export type Offset1<T> = T extends [infer Offset0, ...infer U] ? U : never;
 export type InstanceOf<T> = T extends new (...args: any) => infer R ? R : never;
 export type ClassType<T> = {new(...args: ConstructorArgs<T>): InstanceOf<T>};
 
@@ -35,6 +36,9 @@ export const flatSingle = <T>(arr: T[][]) => ([] as T[]).concat(...arr);
 
 export const range = (num: number) => [...Array(num).keys()];
 
+export const sum = (ary: number[]) => ary.reduce((prv, crr) => prv + crr, 0);
+export const accum = (ary: number[]) => ary.reduce((prv, crr) => [...prv, prv[prv.length-1] + crr], [0]).slice(1);
+
 export const zip = <T,U>(arr1: T[], arr2: U[]): [T,U][] => arr1.map((k, i) => [k, arr2[i]]);
 
 export const clamp = (a: number, min: number, max: number) => Math.min(Math.max(a, min), max);
@@ -49,6 +53,20 @@ export function randf(a: number, b?: number) {
   return Math.random() * (max-min) + min;
 }
 
+export function randWeight(weight: number[]): number {
+  const agg = sum(weight);
+  if(agg < Number.EPSILON) {
+    throw new Error("Invalid weight.");
+  }  
+  const r = Math.random();
+  for(let [i,e] of accum(weight.map(e => e / agg)).entries()){
+    if(r <= e){
+      return i;
+    }
+  }
+  return 0;
+}
+
 // 1秒あたりおよそperSec回trueを返す
 // (dt >= 1000msなら必ずtrue つまり大体1sにx体)
 export const randt = (dt:number, perSec: number) => Math.random() * 10000 < dt * 0.001 * perSec * 10000;
@@ -58,6 +76,22 @@ export const rotWrap = (rot: number) => {
   return (rot > Math.PI) ? rot - Math.PI * 2 :
          (rot < Math.PI * -1) ? rot + Math.PI * 2 : rot;
 };
+
+export const rgba = (color: number) => {
+  return [(color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, (color >> 24) & 0xFF];
+}
+export const rgbaF32 = (color: number) => {
+  return rgba(color).map(e=> e / 0xFF);
+}
+
+export function rgbaU32(color: [number,number,number,number]): number;
+export function rgbaU32(color: {r: number, g: number, b: number, a?: number}): number;
+export function rgbaU32(color: [number,number,number,number] | {r: number, g: number, b: number, a?: number}): number {
+  if(Array.isArray(color)){
+    return ((color[3] * 0xFF & 0xFF) << 24) | ((color[0] * 0xFF & 0xFF) << 16) | ((color[1] * 0xFF & 0xFF) << 8) | (color[2] * 0xFF & 0xFF); 
+  }
+  return (((color.a || 1) * 0xFF & 0xFF) << 24) | ((color.r * 0xFF & 0xFF) << 16) | ((color.g * 0xFF & 0xFF) << 8) | (color.b * 0xFF & 0xFF);
+}
 
 /**
  * ImGui初期化

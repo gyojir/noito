@@ -8,10 +8,11 @@ import { BulletComponent, BulletType } from '../components/BulletComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
 import { MoveComponent } from '../components/MoveComponent';
 import { DirectionComponent } from '../components/DirectionComponent';
+import { World } from '../libs/ecs/World';
 
 export class EnemySystem extends System<GameContext> {
-  constructor(){
-    super([PositionComponent, EnemyComponent, CollideableComponent, MoveComponent, DirectionComponent]);
+  constructor(world: World){
+    super(world, [PositionComponent, EnemyComponent, CollideableComponent, MoveComponent, DirectionComponent]);
   }
 
   update(dt: number, context: GameContext) {

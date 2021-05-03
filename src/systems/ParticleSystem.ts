@@ -5,8 +5,8 @@ import { EnemyComponent } from '../components/EnemyComponent';
 import { ParticleComponent } from '../components/ParticleComponent';
 
 export class ParticleSystem extends System<GameContext> {
-  constructor(){
-    super([ParticleComponent]);
+  constructor(world: World){
+    super(world, [ParticleComponent]);
   }
 
   update(dt: number, context: GameContext) {
