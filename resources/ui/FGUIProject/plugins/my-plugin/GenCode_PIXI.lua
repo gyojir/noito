@@ -29,6 +29,7 @@ local function genCode(handler)
     handler:SetupCodeFolder(exportCodePath, "ts") --check if target folder exists, and delete old files
 
     local writer = CodeWriter.new({ blockFromNewLine=false, usingTabs=true  })
+    writer:writeln('import * as PIXI from \'pixi.js\';')
     writer:writeln('import * as pixi_fairygui from \'pixi_fairygui\';')
     writer:writeln('import { FComponent, ExtendedAnimeInstance } from \'pixi_fairygui/dist/def/index\';')
     writer:writeln()
@@ -51,6 +52,14 @@ local function genCode(handler)
                 -- writer:writeln('public %s:%s.controller.Controller;', memberInfo.name, ns)
             else
                 writer:writeln('public %s: %s;', memberInfo.varName, fuiTypeToMyType(memberInfo.type))
+            end
+        end
+        
+        local pkgItemCnt = handler.pkg.items.Count
+        for i=0,pkgItemCnt-1 do
+            local item = handler.pkg.items[i]
+            if item.type == 'font' then
+                writer:writeln('public %s: string;', item.id)
             end
         end
 
@@ -84,6 +93,16 @@ local function genCode(handler)
                 end
             end
         end
+        
+        for i=0,pkgItemCnt-1 do
+            local item = handler.pkg.items[i]
+            if item.type == 'font' then
+                local fontID = string.format("ui://%s%s", handler.pkg.id, item.id)
+                writer:writeln('this.%s = "%s";', item.id, fontID)
+                writer:writeln('PIXI.BitmapFont.available["%s"] = pixi_fairygui.PIXI.BitmapFont.available["%s"];', fontID, fontID)
+            end
+        end
+
         writer:endBlock() --constructor
         writer:endBlock() --class
         writer:writeln()
