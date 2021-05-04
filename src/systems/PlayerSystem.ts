@@ -207,9 +207,7 @@ export class PlayerSystem extends System<GameContext> {
                   this.createScore(context, `+${num}`, epos.x, epos.y);
                 }
                 else if(score < 0){
-                  const num = (++down) * -10;
-                  context.score += num;
-                  this.createScore(context, `${num}`, epos.x, epos.y);
+                  info.active = false;
                 }
                 if(enemy.type === EnemyType.Death) {
                   info.active = false;
