@@ -16,6 +16,9 @@ async function initAudio() {
   mugen.setSeed(6961167);
   mugen.createBGM("0", 8, 3);
 }
+window.addEventListener('focus', () => mugen.destinationNode.context.rawContext.resume());
+window.addEventListener('blur', () => mugen.destinationNode.context.rawContext.suspend(0));
+
 // avoid zoom
 document.addEventListener("touchend", e=>e.preventDefault(), {passive: false});
 
