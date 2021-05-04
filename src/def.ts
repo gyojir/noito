@@ -1,6 +1,6 @@
 export const aspectRatio = window.innerWidth / window.innerHeight;
-export const GAME_WIDTH = 300;
-export const GAME_HEIGHT = 300;
+export const GAME_WIDTH = 250;
+export const GAME_HEIGHT = 250;
 
 export const Colors = {
   Background: 0xFF404040,

@@ -85,7 +85,7 @@ export class LevelSystem extends System<GameContext> {
     };
 
     if((randt(dt, 5000) && context.app.ticker.lastTime - this.lastEnemyTime > 1500) || 
-       context.app.ticker.lastTime - this.lastEnemyTime > 3000){
+       context.app.ticker.lastTime - this.lastEnemyTime > 1500){
       this.lastEnemyTime = context.app.ticker.lastTime;
       createEnemy({x: randf(-SpawnAreaWidthHalf, SpawnAreaWidthHalf), y: randf(-SpawnAreaHeightHalf, SpawnAreaHeightHalf)}, Object.values(EnemyType)[randWeight([0.4,0.4,0.2])]);
     }

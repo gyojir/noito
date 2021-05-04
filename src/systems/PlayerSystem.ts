@@ -75,10 +75,10 @@ const dirToVec = (dir: ValueOf<typeof Direction>) => {
 const createPlayerTexture = () => {
   const w = 32;
   const h = 32;
-  const rim = 3;
-  const radius = 8;
+  const rim = 4;
+  const radius = 7;
   return PIXI.Texture.fromBuffer(Float32Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
-    const r = Math.sqrt(Math.pow(x - w/2, 2) + Math.pow(y - h/2, 2));
+    const r = Math.abs(x - w/2) + Math.abs(y - h/2);
     return radius <= r && r < radius + rim ? rgbaF32(0xFFFFFFFF) : rgbaF32(0);
    }))))), w, h);
 }
