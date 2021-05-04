@@ -133,10 +133,10 @@ export class PlayerSystem extends System<GameContext> {
     entity.addComponent(LambdaComponent, ()=> {      
       const threas = 500;
       let direction = toDirection(cdir);
-      if (key.isDown(Key.ArrowLeft) || (pointer.data.down && pointer.data.velocity.x > threas)) { direction = Direction.Left; }
-      else if(key.isDown(Key.ArrowRight) || (pointer.data.down && pointer.data.velocity.x < -threas)) { direction = Direction.Right; }
-      else if(key.isDown(Key.ArrowDown) || (pointer.data.down && pointer.data.velocity.y < -threas)) { direction = Direction.Down; }
-      else if(key.isDown(Key.ArrowUp) || (pointer.data.down && pointer.data.velocity.y > threas)) { direction = Direction.Up; }
+      if (key.isDown(Key.ArrowLeft) || (pointer.data.down && Math.abs(pointer.data.velocity.x) > Math.abs(pointer.data.velocity.y) && pointer.data.velocity.x > threas)) { direction = Direction.Left; }
+      else if(key.isDown(Key.ArrowRight) || (pointer.data.down && Math.abs(pointer.data.velocity.x) > Math.abs(pointer.data.velocity.y) && pointer.data.velocity.x < -threas)) { direction = Direction.Right; }
+      else if(key.isDown(Key.ArrowDown) || (pointer.data.down && Math.abs(pointer.data.velocity.x) < Math.abs(pointer.data.velocity.y) && pointer.data.velocity.y < -threas)) { direction = Direction.Down; }
+      else if(key.isDown(Key.ArrowUp) || (pointer.data.down && Math.abs(pointer.data.velocity.x) < Math.abs(pointer.data.velocity.y) && pointer.data.velocity.y > threas)) { direction = Direction.Up; }
 
       {
         const enableDir: ValueOf<typeof Direction>[] = []
@@ -219,7 +219,7 @@ export class PlayerSystem extends System<GameContext> {
             }
           });
           if(info.active === false) { mugen.playSE(mugen.Presets.Explosion); }
-          else if(up > 0) { mugen.playSE(mugen.Presets.Coin); }
+          else if(up > 0 && up >= down) { mugen.playSE(mugen.Presets.Coin); }
           else if(down > 0) { mugen.playSE(mugen.Presets.Hit); }
           if(up >= 5 && down === 0){
             enemies.map(e => changeEnemyType(e, ccw ? EnemyType.White : EnemyType.Blue));
