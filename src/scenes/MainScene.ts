@@ -27,7 +27,7 @@ import { ParticleSystem } from '../systems/ParticleSystem';
 import * as Package1 from '../exportedUI/Package1/Package1Binder';
 import InputManager from '../input/InputManager';
 import { CollisionUtil, Vector2Util } from '../libs/util/CollisionUtil';
-import { GAME_HEIGHT, GAME_WIDTH } from '../def';
+import { GAME_HEIGHT, GAME_WIDTH, Colors } from '../def';
 import { flatten } from 'lodash';
 
 const key = InputManager.Instance.keyboard;
@@ -73,7 +73,7 @@ class Line extends PIXI.Graphics {
   }
 }
 
-const createWallTexture = (color: number = 0xFF7D83FF) => {
+const createWallTexture = (color: number = Colors.Wall) => {
   const w = GAME_WIDTH;
   const h = GAME_HEIGHT;
   return PIXI.Texture.fromBuffer(Float32Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
@@ -135,11 +135,6 @@ class MainScene extends SceneStateMachine<typeof MainScene.State>{
 
     this.enterFunc.Load = () => {
       this.loader
-        .add(...toTexParams(TextureList.Entity))
-        .add(...toTexParams(TextureList.Entity2))
-        .add(...toTexParams(TextureList.Bullet))
-        .add(...toTexParams(TextureList.Background_0))
-        .add(...toTexParams(TextureList.Background_1))
         .add("Package1@atlas0.png", "assets/UI/Package1@atlas0.png")
         .add("Package1.fui", "assets/UI/Package1.fui", { xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER })
         .load((loader, resources) => {

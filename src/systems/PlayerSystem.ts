@@ -20,7 +20,7 @@ import TextureLists from '../scenes/TextureList';
 import { Circle, Polygon } from '../libs/util/Shape';
 import { DirectionComponent } from '../components/DirectionComponent';
 import { LambdaComponent } from '../components/LambdaComponent';
-import { GAME_HEIGHT, GAME_WIDTH } from '../def';
+import { GAME_HEIGHT, GAME_WIDTH, Colors } from '../def';
 import { Vector2Util } from '../libs/util/CollisionUtil';
 import { changeEnemyType } from './LevelSystem';
 import { flatten } from 'lodash';
@@ -131,7 +131,7 @@ export class PlayerSystem extends System<GameContext> {
 
     let points: {pos: {x: number, y: number}}[] = [{pos: {x: cpos.x, y: cpos.y}}];
     entity.addComponent(LambdaComponent, ()=> {      
-      const threas = 500;
+      const threas = 200;
       let direction = toDirection(cdir);
       if (key.isDown(Key.ArrowLeft) || (pointer.data.down && Math.abs(pointer.data.velocity.x) > Math.abs(pointer.data.velocity.y) && pointer.data.velocity.x > threas)) { direction = Direction.Left; }
       else if(key.isDown(Key.ArrowRight) || (pointer.data.down && Math.abs(pointer.data.velocity.x) > Math.abs(pointer.data.velocity.y) && pointer.data.velocity.x < -threas)) { direction = Direction.Right; }
@@ -188,7 +188,7 @@ export class PlayerSystem extends System<GameContext> {
               [p[j], p[j+1], {x: p[j+1].x, y: p[i].y}, {x: p[j].x, y: p[i].y}];  
             polys.push(new Polygon(ccw ? poly : poly.reverse()));
           }
-          polys.forEach(e=> GraphicsUtil.drawShape(this.graphics, e, {}, 0, ccw ? 0xffffff : 0x0000ff, true));
+          polys.forEach(e=> GraphicsUtil.drawShape(this.graphics, e, {}, 0, ccw ? Colors.WhiteEnemy : Colors.BlueEnemy, true));
           let up = 0;
           let down = 0;
           enemies.map(e => {

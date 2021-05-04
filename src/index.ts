@@ -3,7 +3,7 @@ import * as mugen from 'mu-gen';
 import { initImGui, clearImGui } from './libs/util/util';
 import './scenes/AppRoot';
 import './libs/util/Shape'
-import { GAME_WIDTH, GAME_HEIGHT } from './def';
+import { GAME_WIDTH, GAME_HEIGHT, Colors } from './def';
 import { createGameRoot } from './scenes/AppRoot';
 import InputManager from './input/InputManager';
 import * as ImGui_Impl from 'imgui-js/example/imgui_impl.js';
@@ -58,7 +58,7 @@ window.onload = async ()=>{
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     view: canvas,
-    backgroundColor: 0xFF404040,
+    backgroundColor: Colors.Background,
     transparent: false,
   });
   const root = createGameRoot(app);

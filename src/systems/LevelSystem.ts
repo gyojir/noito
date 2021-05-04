@@ -11,7 +11,7 @@ import { GraphNodeComponent } from '../components/GraphComponent';
 import { SpriteComponent } from '../components/SpriteComponent';
 import { GeneratorComponent } from '../components/GeneratorComponent';
 import { flatten } from 'lodash';
-import { GAME_WIDTH, GAME_HEIGHT } from '../def';
+import { GAME_WIDTH, GAME_HEIGHT, Colors } from '../def';
 import { Entity } from '../libs/ecs/Entity';
 import { World } from '../libs/ecs/World';
 
@@ -22,8 +22,8 @@ const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
   const w = 16;
   const h = 16;
   const color =
-    type === EnemyType.White ? 0xFFD4DCFF :
-    type === EnemyType.Blue ? 0xFF007FFF : 0xFF590925;
+    type === EnemyType.White ? Colors.WhiteEnemy :
+    type === EnemyType.Blue ? Colors.BlueEnemy : Colors.RedEnemy;
   return PIXI.Texture.fromBuffer(Float32Array.from(flatten(range(w*h).map(() => rgbaF32(color)))), w, h);
 }
 
