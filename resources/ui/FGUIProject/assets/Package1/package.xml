@@ -3,8 +3,8 @@
   <resources>
     <component id="aanj0" name="Main.xml" path="/" exported="true"/>
     <component id="hwsd3" name="Button1.xml" path="/"/>
-    <font id="f89h1r" name="mybitmapfont-01.fnt" path="/" exported="true" texture="f89h21"/>
-    <image id="f89h21" name="mybitmapfont-01.png" path="/"/>
+    <font id="l7s124" name="mybitmapfont-02.fnt" path="/" exported="true" texture="l7s125"/>
+    <image id="l7s125" name="mybitmapfont-02.png" path="/"/>
   </resources>
   <publish name="" path="..\..\..\public\assets\UI" packageCount="2" genCode="true" codePath="..\..\..\src\exportedUI"/>
 </packageDescription>

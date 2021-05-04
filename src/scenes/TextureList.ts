@@ -4,9 +4,21 @@ const TextureLists = {
     key: 'entity',
     path: 'images/entity.bmp'
   },
+  Entity2: {
+    key: 'entity2',
+    path: 'images/entity2.bmp'
+  },
   Bullet: {
     key: 'bullet',
     path: 'images/bullet.bmp'
+  },
+  Background_0: {
+    key: 'background',
+    path: 'images/background.bmp'
+  },
+  Background_1: {
+    key: 'background1',
+    path: 'images/background1.bmp'
   }
 }
 

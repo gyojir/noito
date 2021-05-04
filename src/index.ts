@@ -55,7 +55,7 @@ window.onload = async ()=>{
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     view: canvas,
-    backgroundColor: 0x444444,
+    backgroundColor: 0xFF404040,
     transparent: false,
   });
   const root = createGameRoot(app);

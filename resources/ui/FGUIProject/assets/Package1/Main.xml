@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="560,560">
+<component size="300,300">
   <controller name="control_1" pages="0,a,1,b" selected="0">
     <action type="play_transition" fromPage="" toPage="" transition="t0"/>
   </controller>
   <displayList>
-    <text id="n0_hwsd" name="n0" xy="-141,101" size="110,41" fontSize="30" vars="true" text="HELLO!"/>
-    <component id="n2_hwsd" name="n2" src="hwsd3" fileName="Button1.xml" xy="46,38"/>
-    <text id="n4_hwsd" name="n4" xy="233,5" size="164,37" scale="2,2" visible="false" font="ui://cijf2vuwf89h1r" fontSize="12" color="#ffffff" text="score 1234"/>
-    <text id="n7_ifdw" name="n5" xy="280,280" pivot="0.5,0.5" anchor="true" size="228,72" scale="2,2" font="ui://cijf2vuwf89h1r" fontSize="12" color="#ffffff" align="center" text="TITLE&#xA;[TAP TO START]"/>
+    <text id="n4_hwsd" name="n4" xy="296,2" pivot="1,0" anchor="true" size="24,14" scale="2,2" visible="false" font="ui://cijf2vuwl7s124" fontSize="12" color="#ffffff" align="right" text="1234"/>
+    <text id="n7_ifdw" name="n5" xy="150,150" pivot="0.5,0.5" anchor="true" size="29,14" scale="3,3" font="ui://cijf2vuwl7s124" fontSize="12" color="#ffffff" align="center" text="NOITO"/>
+    <text id="n8_mcg5" name="n8" xy="4,2" size="24,14" scale="2,2" visible="false" font="ui://cijf2vuwl7s124" fontSize="12" color="#ffffff" text="1234"/>
   </displayList>
-  <transition name="t0">
-    <item time="0" type="XY" target="n0_hwsd" tween="true" startValue="-141,101" endValue="43,101" duration="12" ease="Cubic.Out"/>
-  </transition>
+  <transition name="t0"/>
 </component>
