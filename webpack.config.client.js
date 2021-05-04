@@ -32,10 +32,10 @@ module.exports = {
   entry: "./src/index.ts",
   output: {
     filename: 'bundle.js',
-    path: path.join(__dirname, "build", "public", "js"),  // PROJECT_DIR/build/public/js/に出力
+    path: path.join(__dirname, "build", "js"),            // PROJECT_DIR/build/js/に出力
   },
   devServer: {
-		contentBase: path.join(__dirname, "build", "public"), // build/publicフォルダを起点とする
+		contentBase: path.join(__dirname, "build"),           // buildフォルダを起点とする
     port: 8080,                                           // ポート番号8080
     host: "0.0.0.0"
   },

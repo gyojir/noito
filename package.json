@@ -11,7 +11,8 @@
     "watch:client": "cross-env NODE_ENV=development webpack --config=./webpack.config.client.js --watch",
     "build:production": "cross-env-shell NODE_ENV=production \"npm run build:client\"",
     "build:development": "cross-env-shell NODE_ENV=development \"npm run build:client\"",
-    "build:client": "webpack --config=./webpack.config.client.js"
+    "build:client": "webpack --config=./webpack.config.client.js",
+    "deploy": "rimraf build && npm run build:production && push-dir --dir=build --branch=gh-pages --cleanup --branch=master"
   },
   "author": "",
   "license": "ISC",
@@ -49,6 +50,8 @@
     "cross-env": "^6.0.3",
     "file-loader": "^6.1.0",
     "npm-run-all": "^4.1.5",
+    "push-dir": "^0.4.1",
+    "rimraf": "^3.0.2",
     "typescript": "^3.7.2",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
