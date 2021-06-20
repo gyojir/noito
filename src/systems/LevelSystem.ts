@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { System } from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
-import { selectRand, randf, ValueOf, randt, range, rgbaF32, randWeight } from '../libs/util/util';
+import { selectRand, randf, ValueOf, randt, range, randWeight, rgba } from '../libs/util/util';
 import { GameContext, Layer } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { EnemyComponent, EnemyType } from '../components/EnemyComponent';
@@ -24,7 +24,7 @@ const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
   const color =
     type === EnemyType.White ? Colors.WhiteEnemy :
     type === EnemyType.Blue ? Colors.BlueEnemy : Colors.RedEnemy;
-  return PIXI.Texture.fromBuffer(Float32Array.from(flatten(range(w*h).map(() => rgbaF32(color)))), w, h);
+  return PIXI.Texture.fromBuffer(Uint8Array.from(flatten(range(w*h).map(() => rgba(color)))), w, h);
 }
 
 const getEnemyTexture = {

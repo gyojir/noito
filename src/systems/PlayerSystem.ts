@@ -9,7 +9,7 @@ import { CollideableComponent } from '../components/CollideableComponent';
 import { EnemyComponent, EnemyType } from '../components/EnemyComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
 import { MoveComponent } from '../components/MoveComponent';
-import { clamp, ValueOf, rgbaF32, range } from '../libs/util/util';
+import { clamp, ValueOf, range, rgba } from '../libs/util/util';
 import InputManager from '../input/InputManager';
 import { Key } from 'ts-key-enum';
 import { MassComponent } from '../components/MassComponent';
@@ -77,11 +77,12 @@ const createPlayerTexture = () => {
   const h = 32;
   const rim = 4;
   const radius = 7;
-  return PIXI.Texture.fromBuffer(Float32Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
+  return PIXI.Texture.fromBuffer(Uint8Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
     const r = Math.abs(x - w/2) + Math.abs(y - h/2);
-    return radius <= r && r < radius + rim ? rgbaF32(0xFFFFFFFF) : rgbaF32(0);
+    return radius <= r && r < radius + rim ? rgba(0xFFFFFFFF) : rgba(0);
    }))))), w, h);
 }
+const playerTexture = createPlayerTexture();
 
 export class PlayerSystem extends System<GameContext> {
   graphics = new PIXI.Graphics();
@@ -126,7 +127,7 @@ export class PlayerSystem extends System<GameContext> {
     entity.addComponent(PlayerComponent);
     const cmove = entity.addComponent(MoveComponent);
     const cnode = entity.addComponent(GraphNodeComponent, context.view.container, cpos.x, cpos.y, Layer.Entity);
-    entity.addComponent(SpriteComponent, cnode.node, createPlayerTexture());
+    entity.addComponent(SpriteComponent, cnode.node, playerTexture);
     const info = entity.addComponent(CommonInfoComponent, false);
 
     let points: {pos: {x: number, y: number}}[] = [{pos: {x: cpos.x, y: cpos.y}}];

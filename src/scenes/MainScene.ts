@@ -17,7 +17,7 @@ import { CollisionSystem } from '../systems/CollisionSystem';
 import { SceneStateMachine } from './SceneStateMachine';
 import { CollideableComponent } from '../components/CollideableComponent';
 import { Circle, Polygon } from '../libs/util/Shape';
-import { getAngle, ValueOf, Constructor, ConstructorArgs, range, clamp, rgbaF32, rgbaU32 } from '../libs/util/util';
+import { getAngle, ValueOf, Constructor, ConstructorArgs, range, clamp, rgbaU32, rgba } from '../libs/util/util';
 import { GeneratorSystem } from '../systems/GeneratorSystem';
 import { LambdaSystem } from '../systems/LambdaSystem';
 import TextureList, { toTexParams } from './TextureList';
@@ -76,8 +76,8 @@ class Line extends PIXI.Graphics {
 const createWallTexture = (color: number = Colors.Wall) => {
   const w = GAME_WIDTH;
   const h = GAME_HEIGHT;
-  return PIXI.Texture.fromBuffer(Float32Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
-    return (x - w/2) < -AreaWidthHalf || AreaWidthHalf < (x - w/2) || (y - h/2) < -AreaHeightHalf || AreaHeightHalf < (y - h/2) ? rgbaF32(color) : rgbaF32(0);
+  return PIXI.Texture.fromBuffer(Uint8Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
+    return (x - w/2) < -AreaWidthHalf || AreaWidthHalf < (x - w/2) || (y - h/2) < -AreaHeightHalf || AreaHeightHalf < (y - h/2) ? rgba(color) : rgba(0);
    }))))), w, h);
 }
 
