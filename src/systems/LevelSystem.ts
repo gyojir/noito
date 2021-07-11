@@ -28,10 +28,11 @@ const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
   return PIXI.Texture.fromBuffer(Uint8Array.from(flatSingle(rectMap(w,w, (x,y) => {
     x += 0.5 - w/2;
     y += 0.5 - w/2;
-    [x,y] =  Math.sign(x) + Math.sign(y) == 0 ? [y,x] : [x,y];  // 4つの象限を重ねる
-    [x,y] = [-Math.abs(x) + w/2, -Math.abs(y) + w/2];           // 辺の内側にくっつける
-    [x,y] = type === EnemyType.White ? [y,x] : [x,y];           // 色ごとの向き
-    return (x < (w/2.5) && x * 0.4 > y) ? counter_color : color;
+    // 方向を表す三角を付ける
+    [x,y] = type === EnemyType.White ? [-x,y] : [x,y];  // 色ごとの向き
+    [x,y] =  Math.sign(y) > 0 ? [-x,-y] : [x,y];        // 上下を点対称にする
+    [x,y] = [x + w/2, y + w/2];                         // 辺の内側にくっつける
+    return (x < w * 0.65 && x * 0.3 > y) ? counter_color : color;
   }))), w, w);
 }
 
