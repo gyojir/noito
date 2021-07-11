@@ -11,31 +11,26 @@ import { MoveSystem } from '../systems/MoveSystem';
 import { RenderSystem } from '../systems/RenderSystem';
 import { LevelSystem } from '../systems/LevelSystem';
 import { EnemySystem } from '../systems/EnemySystem';
-import { PlayerSystem, MoveAreaWidthHalf } from '../systems/PlayerSystem';
+import { PlayerSystem } from '../systems/PlayerSystem';
 import { DestroySystem } from '../systems/DestroySystem';
 import { CollisionSystem } from '../systems/CollisionSystem';
 import { SceneStateMachine } from './SceneStateMachine';
 import { CollideableComponent } from '../components/CollideableComponent';
-import { Circle, Polygon } from '../libs/util/Shape';
-import { getAngle, ValueOf, Constructor, ConstructorArgs, range, clamp, rgbaU32, rgba } from '../libs/util/util';
+import { getAngle, rgbaU32, rgba, rectMap, flatSingle } from '../libs/util/util';
 import { GeneratorSystem } from '../systems/GeneratorSystem';
 import { LambdaSystem } from '../systems/LambdaSystem';
-import TextureList, { toTexParams } from './TextureList';
 import { DebugDraw } from './DebugDraw';
 import { View } from '../libs/view/View';
 import { ParticleSystem } from '../systems/ParticleSystem';
 import * as Package1 from '../exportedUI/Package1/Package1Binder';
 import InputManager from '../input/InputManager';
-import { CollisionUtil, Vector2Util } from '../libs/util/CollisionUtil';
-import { GAME_HEIGHT, GAME_WIDTH, Colors } from '../def';
-import { flatten } from 'lodash';
+import { GAME_HEIGHT, GAME_WIDTH, Colors, WALL_SIZE } from '../def';
 
 const key = InputManager.Instance.keyboard;
 const pointer = InputManager.Instance.pointer;
 
-const PlayerRadius = 11;
-const AreaWidthHalf = MoveAreaWidthHalf + PlayerRadius;
-const AreaHeightHalf = MoveAreaWidthHalf + PlayerRadius;
+const AreaWidthHalf = (GAME_WIDTH / 2) - WALL_SIZE;
+const AreaHeightHalf = (GAME_HEIGHT / 2) - WALL_SIZE;
 
 export const Layer = {
   Background_0: 0,
@@ -76,9 +71,12 @@ class Line extends PIXI.Graphics {
 const createWallTexture = (color: number = Colors.Wall) => {
   const w = GAME_WIDTH;
   const h = GAME_HEIGHT;
-  return PIXI.Texture.fromBuffer(Uint8Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
-    return (x - w/2) < -AreaWidthHalf || AreaWidthHalf < (x - w/2) || (y - h/2) < -AreaHeightHalf || AreaHeightHalf < (y - h/2) ? rgba(color) : rgba(0);
-   }))))), w, h);
+  return PIXI.Texture.fromBuffer(Uint8Array.from(flatSingle(rectMap(w, h, (x,y) => {
+    x += 0.5 - w/2;
+    y += 0.5 - h/2;
+    return x < -AreaWidthHalf || AreaWidthHalf < x ||
+           y < -AreaHeightHalf || AreaHeightHalf < y ? rgba(color) : rgba(0);
+   }))), w, h);
 }
 
 

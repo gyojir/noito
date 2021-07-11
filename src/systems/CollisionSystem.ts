@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { System } from '../libs/ecs/ecs';
 import { GameContext } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';

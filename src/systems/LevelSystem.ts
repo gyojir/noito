@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { System } from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
-import { selectRand, randf, ValueOf, randt, range, randWeight, rgba } from '../libs/util/util';
+import { selectRand, randf, ValueOf, randt, range, randWeight, rgba, flatSingle, rectMap } from '../libs/util/util';
 import { GameContext, Layer } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { EnemyComponent, EnemyType } from '../components/EnemyComponent';
@@ -10,7 +10,6 @@ import { Circle, Box } from '../libs/util/Shape';
 import { GraphNodeComponent } from '../components/GraphComponent';
 import { SpriteComponent } from '../components/SpriteComponent';
 import { GeneratorComponent } from '../components/GeneratorComponent';
-import { flatten } from 'lodash';
 import { GAME_WIDTH, GAME_HEIGHT, Colors } from '../def';
 import { Entity } from '../libs/ecs/Entity';
 import { World } from '../libs/ecs/World';
@@ -19,12 +18,19 @@ const SpawnAreaWidthHalf = (GAME_WIDTH / 2) - 30;
 const SpawnAreaHeightHalf = (GAME_HEIGHT / 2) - 30;
 
 const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
-  const w = 16;
-  const h = 16;
-  const color =
+  const w = 15;
+  const color = rgba(
     type === EnemyType.White ? Colors.WhiteEnemy :
-    type === EnemyType.Blue ? Colors.BlueEnemy : Colors.RedEnemy;
-  return PIXI.Texture.fromBuffer(Uint8Array.from(flatten(range(w*h).map(() => rgba(color)))), w, h);
+    type === EnemyType.Blue ? Colors.BlueEnemy : 0);
+  const counter_color = color.map((c,i) => i===3 ? c : ~~(c * 0.65));    
+  return PIXI.Texture.fromBuffer(Uint8Array.from(flatSingle(rectMap(w,w, (x,y) => {
+    x += 0.5 - w/2;
+    y += 0.5 - w/2;
+    [x,y] =  Math.sign(x) + Math.sign(y) == 0 ? [y,x] : [x,y];  // 4つの象限を重ねる
+    [x,y] = [-Math.abs(x) + w/2, -Math.abs(y) + w/2];           // 辺の内側にくっつける
+    [x,y] = type === EnemyType.White ? [y,x] : [x,y];           // 色ごとの向き
+    return (x < (w/2.5) && x * 0.4 > y) ? counter_color : color;
+  }))), w, w);
 }
 
 const getEnemyTexture = {
@@ -58,10 +64,12 @@ export class LevelSystem extends System<GameContext> {
       let csprite = entity.addComponent(SpriteComponent, cnode.node, getEnemyTexture[type]);
 
       entity.addComponent(GeneratorComponent, function* (){
+        // 出現前点滅
         for (let i = 0, time = context.app.ticker.lastTime; context.app.ticker.lastTime - time < 2000; i++) {
           csprite.sprite.visible = (i/2) % 2 == 0;
           yield;
         }
+        // 出現
         csprite.sprite.visible = true;
         cenemy.enable = true;
         let beforeType = cenemy.type;

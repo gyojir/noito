@@ -26,7 +26,7 @@ export class RenderSystem extends System<GameContext> {
         return;
       }
 
-      if(dir !== undefined && context.view){
+      if(cnode.rotate && dir !== undefined && context.view){
         cnode.node.rotation = getAngle(dir);
       }
 

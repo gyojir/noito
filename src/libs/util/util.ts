@@ -36,6 +36,14 @@ export const flatSingle = <T>(arr: T[][]) => ([] as T[]).concat(...arr);
 
 export const range = (num: number) => [...Array(num).keys()];
 
+export const rectMap = <T>(w: number, h: number, fn: (x:number, y: number) => T) => {
+  return range(w*h).map(i => {
+    const x = i % w;
+    const y = Math.floor(i / h);
+    return fn(x,y);
+  });
+};
+
 export const sum = (ary: number[]) => ary.reduce((prv, crr) => prv + crr, 0);
 export const accum = (ary: number[]) => ary.reduce((prv, crr) => [...prv, prv[prv.length-1] + crr], [0]).slice(1);
 

@@ -9,7 +9,7 @@ import { CollideableComponent } from '../components/CollideableComponent';
 import { EnemyComponent, EnemyType } from '../components/EnemyComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
 import { MoveComponent } from '../components/MoveComponent';
-import { clamp, ValueOf, range, rgba } from '../libs/util/util';
+import { clamp, ValueOf, range, rgba, flatSingle, rectMap } from '../libs/util/util';
 import InputManager from '../input/InputManager';
 import { Key } from 'ts-key-enum';
 import { MassComponent } from '../components/MassComponent';
@@ -20,17 +20,18 @@ import TextureLists from '../scenes/TextureList';
 import { Circle, Polygon } from '../libs/util/Shape';
 import { DirectionComponent } from '../components/DirectionComponent';
 import { LambdaComponent } from '../components/LambdaComponent';
-import { GAME_HEIGHT, GAME_WIDTH, Colors } from '../def';
+import { GAME_HEIGHT, GAME_WIDTH, Colors, WALL_SIZE } from '../def';
 import { Vector2Util } from '../libs/util/CollisionUtil';
 import { changeEnemyType } from './LevelSystem';
-import { flatten } from 'lodash';
 import { GraphicsUtil } from '../libs/util/GraphicsUtil';
 
 const key = InputManager.Instance.keyboard;
 const pointer = InputManager.Instance.pointer;
 
-export const MoveAreaWidthHalf = (GAME_WIDTH / 2) - 30;
-export const MoveAreaHeightHalf = (GAME_HEIGHT / 2) - 30;
+const PlayerRadius = 11.5;
+const PlayerRim = 4;
+const MoveAreaWidthHalf = (GAME_WIDTH / 2) - WALL_SIZE - PlayerRadius;
+const MoveAreaHeightHalf = (GAME_HEIGHT / 2) - WALL_SIZE - PlayerRadius;
 
 const Direction = {
   Left: 0,
@@ -73,14 +74,12 @@ const dirToVec = (dir: ValueOf<typeof Direction>) => {
 
 
 const createPlayerTexture = () => {
-  const w = 32;
-  const h = 32;
-  const rim = 4;
-  const radius = 7;
-  return PIXI.Texture.fromBuffer(Uint8Array.from(flatten(range(w).map((x) => flatten(range(h).map(y => {
-    const r = Math.abs(x - w/2) + Math.abs(y - h/2);
-    return radius <= r && r < radius + rim ? rgba(0xFFFFFFFF) : rgba(0);
-   }))))), w, h);
+  const w = PlayerRadius*2;
+  const h = PlayerRadius*2;
+  return PIXI.Texture.fromBuffer(Uint8Array.from(flatSingle(rectMap(w, h, (x,y) => {
+    const r = Math.abs(x + 0.5 - w/2) + Math.abs(y + 0.5 - h/2);
+    return PlayerRadius - PlayerRim <= r && r < PlayerRadius ? rgba(0xFFFFFFFF) : rgba(0);
+   }))), w, h);
 }
 const playerTexture = createPlayerTexture();
 
@@ -126,7 +125,7 @@ export class PlayerSystem extends System<GameContext> {
     const cdir = entity.addComponent(DirectionComponent);
     entity.addComponent(PlayerComponent);
     const cmove = entity.addComponent(MoveComponent);
-    const cnode = entity.addComponent(GraphNodeComponent, context.view.container, cpos.x, cpos.y, Layer.Entity);
+    const cnode = entity.addComponent(GraphNodeComponent, context.view.container, cpos.x, cpos.y, Layer.Entity, false);
     entity.addComponent(SpriteComponent, cnode.node, playerTexture);
     const info = entity.addComponent(CommonInfoComponent, false);
 
