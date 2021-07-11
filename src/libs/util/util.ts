@@ -92,6 +92,10 @@ export const rgbaF32 = (color: number) => {
   return rgba(color).map(e=> e / 0xFF);
 }
 
+export function alphaF32(color: number) {
+  return ((color >> 24) & 0xFF) / 0xFF;
+}
+
 export function rgbaU32(color: [number,number,number,number]): number;
 export function rgbaU32(color: {r: number, g: number, b: number, a?: number}): number;
 export function rgbaU32(color: [number,number,number,number] | {r: number, g: number, b: number, a?: number}): number {

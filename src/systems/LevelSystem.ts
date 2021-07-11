@@ -1,24 +1,26 @@
 import * as PIXI from 'pixi.js';
 import { System } from '../libs/ecs/ecs';
 import * as Core from '../libs/core/core';
-import { selectRand, randf, ValueOf, randt, range, randWeight, rgba, flatSingle, rectMap } from '../libs/util/util';
+import { randf, ValueOf, randt, randWeight, rgba, flatSingle, rectMap } from '../libs/util/util';
 import { GameContext, Layer } from '../scenes/MainScene';
 import { PositionComponent } from '../components/PositionComponent';
 import { EnemyComponent, EnemyType } from '../components/EnemyComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
-import { Circle, Box } from '../libs/util/Shape';
+import { Box } from '../libs/util/Shape';
 import { GraphNodeComponent } from '../components/GraphComponent';
 import { SpriteComponent } from '../components/SpriteComponent';
 import { GeneratorComponent } from '../components/GeneratorComponent';
-import { GAME_WIDTH, GAME_HEIGHT, Colors } from '../def';
+import { GAME_WIDTH, GAME_HEIGHT, Colors, WALL_SIZE } from '../def';
 import { Entity } from '../libs/ecs/Entity';
 import { World } from '../libs/ecs/World';
 
-const SpawnAreaWidthHalf = (GAME_WIDTH / 2) - 30;
-const SpawnAreaHeightHalf = (GAME_HEIGHT / 2) - 30;
+const EnemySize = 15;
+const EnemyHalfSize = EnemySize / 2;
+const SpawnAreaWidthHalf = (GAME_WIDTH / 2) - WALL_SIZE - EnemyHalfSize;
+const SpawnAreaHeightHalf = (GAME_HEIGHT / 2) - WALL_SIZE - EnemyHalfSize;
 
 const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
-  const w = 15;
+  const w = EnemySize;
   const color = rgba(
     type === EnemyType.White ? Colors.WhiteEnemy :
     type === EnemyType.Blue ? Colors.BlueEnemy : 0);
@@ -36,7 +38,6 @@ const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
 const getEnemyTexture = {
   [EnemyType.White]: createEnemyTexture(EnemyType.White),
   [EnemyType.Blue]: createEnemyTexture(EnemyType.Blue),
-  [EnemyType.Death]: createEnemyTexture(EnemyType.Death),
 };
 
 export const changeEnemyType = (entity: Entity, type: ValueOf<typeof EnemyType>) => {
@@ -58,7 +59,7 @@ export class LevelSystem extends System<GameContext> {
     const createEnemy = (pos: Core.Types.Math.Vector2Like, type: ValueOf<typeof EnemyType>) => {
       let entity = this.world.createEntity();
       let cpos = entity.addComponent(PositionComponent);
-      let cenemy = entity.addComponent(EnemyComponent, new Box(16,16), type);
+      let cenemy = entity.addComponent(EnemyComponent, new Box(EnemySize,EnemySize), type);
       let cinfo = entity.addComponent(CommonInfoComponent);
       let cnode = entity.addComponent(GraphNodeComponent, context.view.container, pos.x || 0, pos.y || 0, Layer.Entity);
       let csprite = entity.addComponent(SpriteComponent, cnode.node, getEnemyTexture[type]);
@@ -73,10 +74,10 @@ export class LevelSystem extends System<GameContext> {
         csprite.sprite.visible = true;
         cenemy.enable = true;
         let beforeType = cenemy.type;
-        const lifeTime = () => cenemy.type == EnemyType.Death ? 10000 : 30000;
+        const lifeTime = 30000;
         const FadeTime = 5000;
-        for (let i = 0, time = context.app.ticker.lastTime; context.app.ticker.lastTime - time < lifeTime(); i++) {
-          csprite.sprite.alpha = ((context.app.ticker.lastTime - time) - (lifeTime()-FadeTime)) * (-0.5 / FadeTime) + 1;
+        for (let i = 0, time = context.app.ticker.lastTime; context.app.ticker.lastTime - time < lifeTime; i++) {
+          csprite.sprite.alpha = ((context.app.ticker.lastTime - time) - (lifeTime-FadeTime)) * (-0.5 / FadeTime) + 1;
           if(beforeType !== cenemy.type) {
             time = context.app.ticker.lastTime;
             beforeType = cenemy.type;

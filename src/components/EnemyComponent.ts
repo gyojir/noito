@@ -5,7 +5,6 @@ import { ValueOf } from '../libs/util/util';
 export const EnemyType = {
   White: 0,
   Blue: 1,
-  Death: 2,
 };
 
 export class EnemyComponent extends Component {

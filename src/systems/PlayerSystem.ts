@@ -9,14 +9,11 @@ import { CollideableComponent } from '../components/CollideableComponent';
 import { EnemyComponent, EnemyType } from '../components/EnemyComponent';
 import { CommonInfoComponent } from '../components/CommonInfoComponent';
 import { MoveComponent } from '../components/MoveComponent';
-import { clamp, ValueOf, range, rgba, flatSingle, rectMap } from '../libs/util/util';
+import { ValueOf, rgba, flatSingle, rectMap } from '../libs/util/util';
 import InputManager from '../input/InputManager';
 import { Key } from 'ts-key-enum';
-import { MassComponent } from '../components/MassComponent';
 import { GraphNodeComponent } from '../components/GraphComponent';
 import { SpriteComponent } from '../components/SpriteComponent';
-import { PhysicsBodyComponent } from '../components/PhysicsBodyComponent';
-import TextureLists from '../scenes/TextureList';
 import { Circle, Polygon } from '../libs/util/Shape';
 import { DirectionComponent } from '../components/DirectionComponent';
 import { LambdaComponent } from '../components/LambdaComponent';
@@ -24,11 +21,12 @@ import { GAME_HEIGHT, GAME_WIDTH, Colors, WALL_SIZE } from '../def';
 import { Vector2Util } from '../libs/util/CollisionUtil';
 import { changeEnemyType } from './LevelSystem';
 import { GraphicsUtil } from '../libs/util/GraphicsUtil';
+import { GeneratorComponent } from '../components/GeneratorComponent';
 
 const key = InputManager.Instance.keyboard;
 const pointer = InputManager.Instance.pointer;
 
-const PlayerRadius = 11.5;
+const PlayerRadius = 11;
 const PlayerRim = 4;
 const MoveAreaWidthHalf = (GAME_WIDTH / 2) - WALL_SIZE - PlayerRadius;
 const MoveAreaHeightHalf = (GAME_HEIGHT / 2) - WALL_SIZE - PlayerRadius;
@@ -72,6 +70,9 @@ const dirToVec = (dir: ValueOf<typeof Direction>) => {
   }
 };
 
+const cwToEnemyType = (ccw: boolean) => {
+  return ccw ? EnemyType.White : EnemyType.Blue;
+}
 
 const createPlayerTexture = () => {
   const w = PlayerRadius*2;
@@ -119,6 +120,22 @@ export class PlayerSystem extends System<GameContext> {
     });
   }
 
+  createPolyFlash = (context: GameContext, poly: Polygon, ccw: boolean) => {
+    const entity = this.world.createEntity();
+    const lifeTime = 10;
+    const graphics = this.graphics;
+    const baseColor = 0x00FFFFFF & (ccw ? Colors.WhiteEnemy : Colors.BlueEnemy);
+    poly.points = [...poly.points, poly.points[0]];
+    entity.addComponent(GeneratorComponent, function* (){
+      for(let i = lifeTime; i > 0; i--) {
+        let alpha = 0xFF & ~~(0xFF * i / lifeTime);
+        GraphicsUtil.drawShape(graphics, poly, {}, 0, (alpha << 24) | baseColor, true);
+        yield;
+      }
+      entity.destroy();
+    });
+  }
+
   createPlayer = (context: GameContext) => {
     const entity = this.world.createEntity();
     const cpos = entity.addComponent(PositionComponent);
@@ -130,7 +147,7 @@ export class PlayerSystem extends System<GameContext> {
     const info = entity.addComponent(CommonInfoComponent, false);
 
     let points: {pos: {x: number, y: number}}[] = [{pos: {x: cpos.x, y: cpos.y}}];
-    entity.addComponent(LambdaComponent, ()=> {      
+    entity.addComponent(LambdaComponent, ()=> {
       const threas = 200;
       let direction = toDirection(cdir);
       if (key.isDown(Key.ArrowLeft) || (pointer.data.down && Math.abs(pointer.data.velocity.x) > Math.abs(pointer.data.velocity.y) && pointer.data.velocity.x > threas)) { direction = Direction.Left; }
@@ -156,29 +173,37 @@ export class PlayerSystem extends System<GameContext> {
       }
 
       // 方向変化
-      if(direction != toDirection(cdir)) {
+      const changeDir = direction != toDirection(cdir);
+      if(changeDir) {
         const d = dirToVec(direction);
         cdir.x = d.x;
         cdir.y = d.y;
+        // マーカー追加
         points.push({pos: {x: cpos.x, y: cpos.y}});
       }
 
       // 移動
-      const speed = 1;
+      const speed = 1.0;
       let mv = cmove.getMove();
       mv.x = cdir.x * speed;
       mv.y = cdir.y * speed;
 
       const enemies = this.world.getEntities([EnemyComponent]);
       for(let [i,e] of [...points.slice(0, -2).entries()].reverse()) {
-        if(Vector2Util.sub(points[points.length-1].pos, cpos).lengthSq() > Number.EPSILON &&
-           (Math.abs(points[i].pos.x - cpos.x) < Number.EPSILON ||
-            Math.abs(points[i].pos.y - cpos.y) < Number.EPSILON)) {
-          const p = [...points.map(e=>e.pos), cpos];
+        // 囲い検出
+        const p_i = points[i];
+        const nearX = Math.abs(p_i.pos.x - cpos.x) < speed; // マーカーとxが同じ
+        const nearY = Math.abs(p_i.pos.y - cpos.y) < speed; // マーカーとyが同じ
+        const currentPos = { x: nearX ? p_i.pos.x : cpos.x, y: nearY ? p_i.pos.y : cpos.y }; // ズレ矯正
+        if((nearX || nearY) && !changeDir) {
+          // 現在地も加えて計算
+          const p = [...points.map(e=>e.pos), currentPos];
+          // 回転方向
           const ccw =
             Vector2Util.cross2d(
               Vector2Util.sub(p[i], p[p.length-1]),
               Vector2Util.sub(p[p.length-2], p[p.length-1])) > 0;
+          // 四角形に分割
           const firstDir = Vector2Util.sub(p[i], p[i+1]);
           const firstVertical = Math.abs(firstDir.x) < Number.EPSILON;
           const polys: Polygon[] = [];
@@ -188,7 +213,11 @@ export class PlayerSystem extends System<GameContext> {
               [p[j], p[j+1], {x: p[j+1].x, y: p[i].y}, {x: p[j].x, y: p[i].y}];  
             polys.push(new Polygon(ccw ? poly : poly.reverse()));
           }
-          polys.forEach(e=> GraphicsUtil.drawShape(this.graphics, e, {}, 0, ccw ? Colors.WhiteEnemy : Colors.BlueEnemy, true));
+
+          // ポリゴン描画
+          this.createPolyFlash(context, new Polygon(p.slice(i)), ccw);
+
+          // ポイント計算
           let up = 0;
           let down = 0;
           enemies.map(e => {
@@ -196,20 +225,15 @@ export class PlayerSystem extends System<GameContext> {
             const enemy = e.getComponent(EnemyComponent);
             const einfo = e.getComponent(CommonInfoComponent);
             for(let poly of polys) {
-              if(epos !== undefined && enemy != undefined && einfo !== undefined && enemy.enable && poly.hit(enemy.shape, {bPos: epos})){
+              // ヒットした
+              if(epos !== undefined && enemy !== undefined && einfo !== undefined && enemy.enable && poly.hit(enemy.shape, {bPos: epos})){
                 einfo.active = false;
-                const score =
-                  enemy.type === EnemyType.White ? (ccw ? 1 : -1) :
-                  enemy.type === EnemyType.Blue ? (ccw ? -1 : 1) : 0;
-                if(score > 0) {
+                if(cwToEnemyType(ccw) == enemy.type) {
                   const num = (++up) * 10;
                   context.score += num;
                   this.createScore(context, `+${num}`, epos.x, epos.y);
                 }
-                else if(score < 0){
-                  info.active = false;
-                }
-                if(enemy.type === EnemyType.Death) {
+                else {
                   info.active = false;
                 }
                 break;
@@ -223,8 +247,10 @@ export class PlayerSystem extends System<GameContext> {
             enemies.map(e => changeEnemyType(e, ccw ? EnemyType.White : EnemyType.Blue));
           }
           
-          points.splice(i > 0 && Math.abs(Vector2Util.sub(cpos, p[i]).dot(Vector2Util.sub(p[i-1], p[i]))) < Number.EPSILON ? i + 1 : i);
-          points.push({pos: {x: cpos.x, y: cpos.y}});
+          // 直角を保ちたい
+          points.splice(i > 0 && Math.abs(Vector2Util.sub(currentPos, p[i]).dot(Vector2Util.sub(p[i-1], p[i]))) < Number.EPSILON ? i + 1 : i);
+          // 現在地にマーカーを付けて終わり
+          points.push({pos: {x: currentPos.x, y: currentPos.y}});
           break;
         }
       }

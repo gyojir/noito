@@ -156,7 +156,7 @@ export class Circle extends ShapeBase {
 export class Box extends ShapeBase {
   width: number;
   height: number;
-  constructor(width: number, height: number){
+  constructor(width: number, height: number) {
     super();
     this.width = width;
     this.height = height
@@ -182,7 +182,7 @@ export class Polygon extends ShapeBase {
   points: Vector2[];
   constructor(points: Vector2[]){
     super();
-    this.points = points;
+    this.points = points.map(e => ({x: e.x, y: e.y}));
   }
 
   getAABB(angle: number): Box {

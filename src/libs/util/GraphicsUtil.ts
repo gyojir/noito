@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js'
 import * as Core from '../core/core';
 import { Polygon, Circle, Box, ShapeBase } from './Shape';
+import { alphaF32 } from './util';
 
 export class GraphicsUtil {
   static setVisible(graphics: PIXI.Graphics, visible: boolean) {
@@ -13,8 +14,11 @@ export class GraphicsUtil {
   }
 
   static setColor(graphics: PIXI.Graphics, color: number, fill: boolean) {
-    graphics.lineStyle(1, color);
-    graphics.fill.color = color;
+    const c = (0xFF << 24) | color;
+    const a = alphaF32(color);
+    graphics.lineStyle(1, c, a);
+    graphics.fill.alpha = a;
+    graphics.fill.color = c;
     graphics.fill.visible = fill;
   }
 
