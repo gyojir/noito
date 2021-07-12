@@ -31,8 +31,8 @@ const createEnemyTexture = (type: ValueOf<typeof EnemyType>) => {
     // 方向を表す三角を付ける
     [x,y] = type === EnemyType.White ? [-x,y] : [x,y];  // 色ごとの向き
     [x,y] =  Math.sign(y) > 0 ? [-x,-y] : [x,y];        // 上下を点対称にする
-    [x,y] = [x + w/2, y + w/2];                         // 辺の内側にくっつける
-    return (x < w * 0.65 && x * 0.3 > y) ? counter_color : color;
+    [x,y] = [x + w/2, y + w/2 - 1];                     // 辺の内側にくっつける
+    return (x < w * 0.65 && y >= 0 && x * 0.3 > y) ? counter_color : color;
   }))), w, w);
 }
 
