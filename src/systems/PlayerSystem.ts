@@ -125,7 +125,6 @@ export class PlayerSystem extends System<GameContext> {
     const lifeTime = 10;
     const graphics = this.graphics;
     const baseColor = 0x00FFFFFF & (ccw ? Colors.WhiteEnemy : Colors.BlueEnemy);
-    poly.points = [...poly.points, poly.points[0]];
     entity.addComponent(GeneratorComponent, function* (){
       for(let i = lifeTime; i > 0; i--) {
         let alpha = 0xFF & ~~(0xFF * i / lifeTime);
@@ -189,25 +188,27 @@ export class PlayerSystem extends System<GameContext> {
       mv.y = cdir.y * speed;
 
       const enemies = this.world.getEntities([EnemyComponent]);
-      for(let [i,e] of [...points.slice(0, -2).entries()].reverse()) {
+      const entries = [...points.slice(0, changeDir ? -2 : -1).entries()];
+      for(let [i,e] of entries.reverse()) {
         // 囲い検出
         const p_i = points[i];
         const nearX = Math.abs(p_i.pos.x - cpos.x) < speed; // マーカーとxが同じ
         const nearY = Math.abs(p_i.pos.y - cpos.y) < speed; // マーカーとyが同じ
-        const currentPos = { x: nearX ? p_i.pos.x : cpos.x, y: nearY ? p_i.pos.y : cpos.y }; // ズレ矯正
-        if((nearX || nearY) && !changeDir) {
+        if(i === entries.length - 1 ? (nearX && nearY) : (nearX || nearY)) {
           // 現在地も加えて計算
-          const p = [...points.map(e=>e.pos), currentPos];
+          const currentPos = { x: nearX ? p_i.pos.x : cpos.x, y: nearY ? p_i.pos.y : cpos.y }; // ズレ矯正
+          const p = [...points.map(e=>e.pos), ...(changeDir ? [] : [currentPos])];
           // 回転方向
-          const ccw =
+          const cross = 
             Vector2Util.cross2d(
               Vector2Util.sub(p[i], p[p.length-1]),
-              Vector2Util.sub(p[p.length-2], p[p.length-1])) > 0;
+              Vector2Util.sub(p[p.length-2], p[p.length-1]));
+          const ccw = cross > 0;
           // 四角形に分割
           const firstDir = Vector2Util.sub(p[i], p[i+1]);
           const firstVertical = Math.abs(firstDir.x) < Number.EPSILON;
           const polys: Polygon[] = [];
-          for(let j = i + 2; j < p.length - 1; j++) {
+          for(let j = i + 1; j < p.length - 1; j++) {
             const poly = firstVertical ?
               [p[j], p[j+1], {x: p[i].x, y: p[j+1].y}, {x: p[i].x, y: p[j].y}] : 
               [p[j], p[j+1], {x: p[j+1].x, y: p[i].y}, {x: p[j].x, y: p[i].y}];  
@@ -250,7 +251,9 @@ export class PlayerSystem extends System<GameContext> {
           // 直角を保ちたい
           points.splice(i > 0 && Math.abs(Vector2Util.sub(currentPos, p[i]).dot(Vector2Util.sub(p[i-1], p[i]))) < Number.EPSILON ? i + 1 : i);
           // 現在地にマーカーを付けて終わり
-          points.push({pos: {x: currentPos.x, y: currentPos.y}});
+          if(!(nearX && nearY) || points.length == 0){
+            points.push({pos: {x: currentPos.x, y: currentPos.y}});
+          }
           break;
         }
       }
